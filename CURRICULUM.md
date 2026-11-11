@@ -20,7 +20,7 @@ writing status.
 
 | Level | Lessons | Planned | Drafted | Reviewed | Published |
 |---|---|---|---|---|---|
-| L0 Orientation | 6 | 6 | 0 | 0 | 0 |
+| L0 Orientation | 6 | 0 | 0 | 6 | 0 |
 | L1 Foundations for Generative AI | 10 | 10 | 0 | 0 | 0 |
 | L2 Deep Learning & Generative Models | 15 | 15 | 0 | 0 | 0 |
 | L3 Building with Language Models | 14 | 14 | 0 | 0 | 0 |
@@ -28,7 +28,7 @@ writing status.
 | L5 Production AI Engineering | 11 | 11 | 0 | 0 | 0 |
 | L6 Safety, Security & Governance | 13 | 13 | 0 | 0 | 0 |
 | L7 Expert & Frontier Topics | 12 | 12 | 0 | 0 | 0 |
-| **Total** | **92** | **92** | **0** | **0** | **0** |
+| **Total** | **92** | **86** | **0** | **6** | **0** |
 
 ## Lessons
 
@@ -43,12 +43,12 @@ Folder: [curriculum/level-0-orientation/](curriculum/level-0-orientation/README.
 
 | ID | Title | Objective (you will be able to…) | Prereqs | Time | Status |
 |---|---|---|---|---|---|
-| L0-01 | What Generative AI Is (and Isn't) | Distinguish systems that generate content from systems that classify or predict, and from hand-coded software | — | 20 min | planned |
-| L0-02 | AI, ML, Deep Learning, Generative AI: The Nested Map | Place a given system in the right category and explain where generative AI sits | L0-01 | 25 min | planned |
-| L0-03 | A Short History: From Rules to Generative Models | Explain the eras that led to today's generative models and why progress came in waves | L0-02 | 30 min | planned |
-| L0-04 | Capabilities, Limits and Responsible Use: A First Look | Recognize generative failure modes (fabrication, bias, inconsistency) and when a human must stay in charge | L0-02 | 25 min | planned |
-| L0-05 | How to Use This Catalog | Pick a learning path and depth layer (🟢/🟡/🔴) using the placement self-assessment | L0-01 | 25 min | planned |
-| L0-06 | Your Toolkit: Running the Code Examples | Set up Python 3.11+ in a virtual environment, run an example, and compare its output with the expected-output comment | L0-05 | 30 min | planned |
+| L0-01 | What Generative AI Is (and Isn't) | Distinguish systems that generate content from systems that classify or predict, and from hand-coded software | — | 20 min | reviewed |
+| L0-02 | AI, ML, Deep Learning, Generative AI: The Nested Map | Place a given system in the right category and explain where generative AI sits | L0-01 | 25 min | reviewed |
+| L0-03 | A Short History: From Rules to Generative Models | Explain the eras that led to today's generative models and why progress came in waves | L0-02 | 30 min | reviewed |
+| L0-04 | Capabilities, Limits and Responsible Use: A First Look | Recognize generative failure modes (fabrication, bias, inconsistency) and when a human must stay in charge | L0-02 | 25 min | reviewed |
+| L0-05 | How to Use This Catalog | Pick a learning path and depth layer (🟢/🟡/🔴) using the placement self-assessment | L0-01 | 25 min | reviewed |
+| L0-06 | Your Toolkit: Running the Code Examples | Set up Python 3.11+ in a virtual environment, run an example, and compare its output with the expected-output comment | L0-05 | 30 min | reviewed |
 
 ### Level 1 — Foundations for Generative AI (≈ 9.2 h)
 
