@@ -1,0 +1,424 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Toolkit: Running the Code Examples · Generative AI from First Principles</title>
+<meta name="description" content="To run the catalog&#x27;s code you need Python 3.11 or newer, a copy of the catalog, a virtual environment, and two free packages (NumPy and matplotlib). Setup takes about fifteen minutes. Every example then runs offline with one command, and prints exactly the output written at the end of its docstring,">
+<link rel="stylesheet" href="../style.css?v=2026-11-11">
+
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="../data.js?v=2026-11-11"></script>
+<script defer src="../app.js?v=2026-11-11"></script>
+</head>
+<body data-root="../">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="../index.html">Home</a></li>
+<li><a href="../curriculum.html">Curriculum</a></li>
+<li><a href="../paths.html">Learning paths</a></li>
+<li><a href="../glossary.html">Glossary & flashcards</a></li>
+<li><a href="../progress.html">Progress</a></li>
+<li><a href="../about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<div class="lesson-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol><li class=""><a href="#learning-objectives">Learning objectives</a></li><li class=""><a href="#why-this-matters">Why this matters</a></li><li class="green"><a href="#-core-idea-everyone"><span class="depth-dot green" aria-hidden="true"></span>Core idea (everyone)</a></li><li class="yellow"><a href="#-how-it-works-practitioner"><span class="depth-dot yellow" aria-hidden="true"></span>How it works (practitioner)</a></li><li class="red"><a href="#-going-deeper-expert"><span class="depth-dot red" aria-hidden="true"></span>Going deeper (expert)</a></li><li class=""><a href="#common-misconceptions">Common misconceptions</a></li><li class=""><a href="#hands-on-exercise">Hands-on exercise</a></li><li class=""><a href="#check-your-understanding">Check your understanding</a></li><li class=""><a href="#key-terms">Key terms</a></li><li class=""><a href="#further-reading">Further reading</a></li><li class=""><a href="#next">Next</a></li></ol>
+  </aside>
+  <article class="lesson" data-lesson="L0-06">
+    <p class="breadcrumb"><a href="../curriculum.html#level-0">Level 0</a> · Module 0A Orientation</p>
+    <h1>Your Toolkit: Running the Code Examples</h1>
+    <div class="tldr"><strong>TL;DR</strong> To run the catalog's code you need Python 3.11 or newer, a copy of the catalog, a virtual environment, and two free packages (NumPy and matplotlib). Setup takes about fifteen minutes. Every example then runs offline with one command, and prints exactly the output written at the end of its docstring, so you always know whether it worked.</div>
+    <ul class="meta">
+      <li><span aria-hidden="true">⏱</span> 30 min</li>
+      <li>Prerequisites: <a href="L0-05.html">L0-05</a></li>
+      <li>Last reviewed: 2026-11-11</li>
+      <li><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/06-your-toolkit/README.md">View source on GitHub</a></li>
+    </ul>
+    <div class="depth-filter" role="group" aria-label="Reading depth">
+      <span class="depth-label">Reading depth:</span>
+      <button type="button" data-depth="green" aria-pressed="false"><span class="depth-dot green" aria-hidden="true"></span> Core</button>
+      <button type="button" data-depth="yellow" aria-pressed="false"><span class="depth-dot yellow" aria-hidden="true"></span> + Practitioner</button>
+      <button type="button" data-depth="red" aria-pressed="true"><span class="depth-dot red" aria-hidden="true"></span> + Expert</button>
+    </div>
+    <section class="lesson-section" id="learning-objectives"><h2>Learning objectives</h2><p>By the end you will be able to:</p>
+<ol>
+<li><strong>Set up</strong> Python, a virtual environment and the catalog's pinned packages on your computer.</li>
+<li><strong>Run</strong> an example and <strong>compare</strong> its output with the documented expected output.</li>
+<li><strong>Explain</strong> why the catalog fixes random seeds and pins package versions.</li>
+<li><strong>Diagnose</strong> common setup problems from their symptoms.</li>
+</ol>
+</section><section class="lesson-section" id="why-this-matters"><h2>Why this matters</h2><p>The 🟡 and 🔴 layers of every lesson after this one include code. Code you can't run is code you
+can't experiment with, and experimenting is where understanding forms. The habits in this lesson
+also matter beyond learning: reproducible environments and checkable outputs are exactly how
+professional AI teams keep their work trustworthy.</p>
+<p>If you only plan to read 🟢 sections, you can skip the setup. Skim the 🟢 section anyway: it
+explains what you'll see in code examples.</p>
+</section><section class="lesson-section" id="-core-idea-everyone" data-depth="green"><h2>🟢 Core idea (everyone)</h2><h3 id="the-toolkit">The toolkit</h3>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>What it is</th>
+<th>Why you need it</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Python</strong></td>
+<td>A popular, free programming language, and the program that runs code written in it</td>
+<td>Every example is written in Python</td>
+</tr>
+<tr>
+<td><strong>Terminal</strong></td>
+<td>A text window where you type commands (also called a command line). The program inside it that reads your commands is the shell</td>
+<td>You run examples by typing a command</td>
+</tr>
+<tr>
+<td><strong>The catalog</strong></td>
+<td>This repository, a folder of lessons and code</td>
+<td>The examples live here</td>
+</tr>
+<tr>
+<td><strong>Virtual environment</strong></td>
+<td>A private folder of packages for one project</td>
+<td>Keeps the catalog's packages separate from everything else</td>
+</tr>
+<tr>
+<td><strong>Packages</strong></td>
+<td>Add-on code libraries for Python</td>
+<td>NumPy (fast math on lists of numbers) and matplotlib (plots)</td>
+</tr>
+<tr>
+<td><strong>A text editor</strong></td>
+<td>Any program for editing plain text</td>
+<td>To read and change the code</td>
+</tr>
+</tbody>
+</table>
+<p>A <strong>package</strong> is a bundle of ready-made code that other people wrote and shared. <strong>NumPy</strong> is
+the package almost every AI project uses: it does arithmetic on whole lists of numbers, called
+<strong>arrays</strong>, at once and very quickly.</p>
+<h3 id="six-steps">Six steps</h3>
+<p><img src="../img/curriculum/level-0-orientation/06-your-toolkit/diagrams/setup_steps.png" alt="Six setup steps in order: 1 install Python 3.11 or newer, 2 get the catalog by cloning or downloading, 3 create a virtual environment, 4 install the pinned packages, 5 run an example with python file.py, 6 compare its output with the expected output" /></p>
+<p><em>Setup is six steps: install Python, get the catalog, create a virtual environment, install packages, run an example, and compare its output.</em></p>
+<h3 id="why-a-virtual-environment">Why a virtual environment?</h3>
+<p>Different projects need different versions of the same package. A <strong>virtual environment</strong> gives
+each project its own private set of packages, so installing something for one project can't
+break another.</p>
+<p><strong>An analogy.</strong> It's like giving each project its own toolbox instead of sharing one big
+toolbox in the garage. Whatever you add to one box doesn't change what's in the others.</p>
+<p><strong>Where the analogy breaks down:</strong> a toolbox is physically separate, but a virtual environment
+isn't a security barrier. Code you run inside it can still read your files and use your network.
+It separates <em>packages</em>, not <em>permissions</em>.</p>
+<h3 id="the-expected-output-contract">The &quot;expected output&quot; contract</h3>
+<p>Every code file in the catalog ends its opening comment (its <strong>docstring</strong>) with the exact output
+you should see. For example, this lesson's setup check promises:</p>
+<pre><code class="language-text">[ok] Python 3.11 or newer
+[ok] NumPy installed
+[ok] matplotlib installed
+[ok] catalog's shared/ folder found
+Everything is ready.
+</code></pre>
+<p>If your output matches, the example works on your computer. If it doesn't, something is
+different, and the difference tells you where to look.</p>
+<p>This only works if the code is <strong>deterministic</strong>: it gives the same output every time it runs.
+Many examples use random numbers (to sample text, for instance). They're made repeatable with a
+<strong>random seed</strong>: a starting number for the random-number generator. The same seed always gives the
+same sequence of &quot;random&quot; choices.</p>
+<h3 id="a-worked-example-with-real-numbers">A worked example with real numbers</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/06-your-toolkit/code/hello_numpy.py">code/hello_numpy.py</a> takes one week of noon temperatures from Brindlewick's
+weather station, in degrees Celsius:</p>
+<table>
+<thead>
+<tr>
+<th>Mon</th>
+<th>Tue</th>
+<th>Wed</th>
+<th>Thu</th>
+<th>Fri</th>
+<th>Sat</th>
+<th>Sun</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4.0</td>
+<td>6.5</td>
+<td>7.0</td>
+<td>3.5</td>
+<td>2.0</td>
+<td>5.0</td>
+<td>8.0</td>
+</tr>
+</tbody>
+</table>
+<p>With NumPy, one line converts all seven to Fahrenheit, using °F = °C × 9/5 + 32. For Monday,
+4.0 × 9/5 + 32 = 39.2. The program prints the whole week at once:</p>
+<pre><code class="language-text">in °F: [39.2 43.7 44.6 38.3 35.6 41.  46.4]
+</code></pre>
+<p>The mean is (4.0 + 6.5 + 7.0 + 3.5 + 2.0 + 5.0 + 8.0) / 7 = 36.0 / 7 ≈ 5.14 °C. Two days were
+below 4 °C (Thursday and Friday). These are exactly the operations, on much bigger arrays, that
+AI models perform billions of times.</p>
+</section><section class="lesson-section" id="-how-it-works-practitioner" data-depth="yellow"><h2>🟡 How it works (practitioner)</h2><h3 id="step-by-step">Step by step</h3>
+<p><strong>1. Install Python 3.11 or newer.</strong> Download it from <a href="https://www.python.org/downloads/">https://www.python.org/downloads/</a>, or use
+your operating system's package manager. Then check the version in a terminal:</p>
+<pre><code class="language-bash">python --version
+</code></pre>
+<p>On macOS and Linux the command may be <code>python3</code>. On Windows, <code>py --version</code> also works. You need
+3.11 or newer.</p>
+<p><strong>2. Get the catalog.</strong> If you have Git, clone the repository:</p>
+<pre><code class="language-bash">git clone https://github.com/rickyb30/genai-from-first-principles.git
+</code></pre>
+<p>Otherwise, download it as a ZIP file from the repository page and unzip it. Then move into the
+folder:</p>
+<pre><code class="language-bash">cd genai-from-first-principles
+</code></pre>
+<p><strong>3. Create a virtual environment</strong> named <code>.venv</code> inside the catalog folder:</p>
+<pre><code class="language-bash">python -m venv .venv
+</code></pre>
+<p>Use <code>python3</code> instead of <code>python</code> on macOS and Linux if that's what step 1 needed. On Windows,
+<code>py -m venv .venv</code> also works.</p>
+<p><strong>4. Activate it, then install the packages.</strong> Activation makes <code>python</code> mean &quot;the Python in this
+environment&quot;. On macOS and Linux:</p>
+<pre><code class="language-bash">source .venv/bin/activate
+</code></pre>
+<p>On Windows, in Command Prompt:</p>
+<pre><code class="language-bat">.venv\Scripts\activate.bat
+</code></pre>
+<p>On Windows, in PowerShell:</p>
+<pre><code class="language-powershell">.venv\Scripts\Activate.ps1
+</code></pre>
+<p>Your prompt usually shows <code>(.venv)</code> once it's active. Then install the pinned packages:</p>
+<pre><code class="language-bash">python -m pip install -r requirements.txt
+</code></pre>
+<p>The <code>requirements.txt</code> at the catalog's root covers every level. Each level folder also has its
+own <code>requirements.txt</code> with the same pinned versions, if you'd rather install only one level's needs.</p>
+<p><strong>5. Run the setup check:</strong></p>
+<pre><code class="language-bash">python curriculum/level-0-orientation/06-your-toolkit/code/check_setup.py
+</code></pre>
+<p><strong>6. Compare</strong> the output with the expected output above. Then try <code>hello_numpy.py</code> the same way.</p>
+<p>Examples work from any folder. Ones that import shared code find the catalog's <code>shared/</code> folder
+by walking up from their own location, so you never need to install the catalog itself.</p>
+<h3 id="reading-an-example-file">Reading an example file</h3>
+<p>Every example follows the same shape. Here's the start of <code>check_setup.py</code>:</p>
+<pre><code class="language-python">&quot;&quot;&quot;Check that your computer is ready to run every example in this catalog.
+...
+Run:  python check_setup.py
+
+Expected output:
+    [ok] Python 3.11 or newer
+    ...
+&quot;&quot;&quot;
+
+import importlib.util
+import sys
+</code></pre>
+<ol>
+<li><strong>The docstring</strong> says what the file teaches, how to run it, and its exact output.</li>
+<li><strong>The imports</strong> list what it uses. Lessons in Levels 0–2 only use the standard library
+(which comes with Python), NumPy and matplotlib.</li>
+<li><strong>Functions</strong> do the work, with comments that explain <em>why</em>, not just <em>what</em>.</li>
+<li><strong><code>main()</code></strong> runs the example when you run the file.</li>
+</ol>
+<h3 id="common-pitfalls">Common pitfalls</h3>
+<table>
+<thead>
+<tr>
+<th>Symptom</th>
+<th>Likely cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>python: command not found</code></td>
+<td>Python isn't installed, or it's named <code>python3</code></td>
+<td>Try <code>python3</code> (or <code>py</code> on Windows); reinstall if needed</td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError: No module named 'numpy'</code></td>
+<td>The virtual environment isn't active</td>
+<td>Activate it (step 4), then run again</td>
+</tr>
+<tr>
+<td>PowerShell says running scripts is disabled</td>
+<td>Your PowerShell settings block activation scripts</td>
+<td>Skip activation and run the environment's Python directly, from the catalog folder: <code>.venv\Scripts\python path\to\file.py</code></td>
+</tr>
+<tr>
+<td><code>ensurepip is not available</code> when creating the environment (Debian, Ubuntu)</td>
+<td>The operating system's Python is missing its venv module</td>
+<td>Install your distribution's venv package (on Debian and Ubuntu it's <code>python3-venv</code>), then retry step 3</td>
+</tr>
+<tr>
+<td><code>UnicodeEncodeError</code> when printing</td>
+<td>Your terminal's text encoding can't show a character such as &quot;°&quot;</td>
+<td>Set <code>PYTHONIOENCODING</code> to <code>utf-8</code> for this terminal (see below), then run the example again</td>
+</tr>
+<tr>
+<td>Output differs slightly from the expected output</td>
+<td>A different package version, or the code was changed</td>
+<td>Install the pinned versions from <code>requirements.txt</code></td>
+</tr>
+</tbody>
+</table>
+<p>To set <code>PYTHONIOENCODING</code> for the current terminal, use the command for your shell. On macOS and
+Linux (bash or zsh):</p>
+<pre><code class="language-bash">export PYTHONIOENCODING=utf-8
+</code></pre>
+<p>In Windows Command Prompt:</p>
+<pre><code class="language-bat">set PYTHONIOENCODING=utf-8
+</code></pre>
+<p>In Windows PowerShell:</p>
+<pre><code class="language-powershell">$env:PYTHONIOENCODING = &quot;utf-8&quot;
+</code></pre>
+<p>If <code>pip install</code> fails on a work computer, a network proxy may be blocking it. Ask your IT team
+how to install Python packages there.</p>
+</section><section class="lesson-section" id="-going-deeper-expert" data-depth="red"><h2>🔴 Going deeper (expert)</h2><h3 id="reproducibility-is-engineered-not-automatic">Reproducibility is engineered, not automatic</h3>
+<p>Exact expected outputs only work because three sources of variation are controlled:</p>
+<ol>
+<li><strong>Package versions.</strong> Every <code>requirements.txt</code> pins exact versions (<code>numpy==2.4.6</code>). This
+practice is called <strong>dependency pinning</strong>. Without it, a new release can change behaviour, or
+even just how numbers are printed (<code>41.</code> versus <code>41.0</code>), and the outputs stop matching.</li>
+<li><strong>Randomness.</strong> Each example creates its own seeded generator, such as <code>random.Random(4)</code> or
+<code>np.random.default_rng(seed=0)</code>, instead of using global random state. That keeps each
+example's random choices independent of anything else that runs.</li>
+<li><strong>Hidden ordering.</strong> Python randomizes the hash of strings between runs by default, which can
+change the iteration order of sets. Examples avoid printing anything whose order depends on
+that, and the catalog's test runner sets <code>PYTHONHASHSEED=0</code> as a backstop.</li>
+</ol>
+<p>Floating-point arithmetic adds a subtler source of variation. The same calculation can produce
+slightly different results on different hardware, or when operations happen in a different order
+(as in parallel computation). The examples print rounded values where this could matter. In
+large-scale training on GPUs, exact reproducibility is often impractical, and teams aim for
+<em>statistical</em> reproducibility instead: similar metrics across runs with different seeds. L5-01
+returns to run-to-run variation when it builds regression tests for model outputs.</p>
+<h3 id="installing-packages-is-a-supply-chain-decision">Installing packages is a supply-chain decision</h3>
+<p><code>pip install</code> downloads and runs code written by other people. Three habits reduce the risk:</p>
+<ul>
+<li><strong>Pin versions</strong>, so an unexpected new release can't slip in.</li>
+<li><strong>Install from the official package index</strong>, and type package names carefully. Attackers
+publish look-alike names (<strong>typosquatting</strong>) hoping for typos.</li>
+<li><strong>Install only what you need.</strong> Every extra package is more code you're trusting.</li>
+</ul>
+<p>The same concerns apply, at much higher stakes, to downloading pretrained model files and
+datasets. L6-05 covers AI supply-chain security.</p>
+<h3 id="why-the-catalog-avoids-network-calls">Why the catalog avoids network calls</h3>
+<p>Every example runs offline. This makes the examples free, private and repeatable, and it keeps
+the catalog vendor-neutral. Where a lesson needs a language model, it codes against a small,
+model-agnostic interface in <code>shared/</code> (introduced properly in L3-01). The same lesson code works
+with the scripted MockLLM, the TinyLM you'll build, or an adapter you write for any other model,
+without changing a line. Designing for that kind of substitution is a core production skill in
+its own right.</p>
+</section><section class="lesson-section" id="common-misconceptions"><h2>Common misconceptions</h2><ul>
+<li><strong>Myth:</strong> You need a powerful computer, or a graphics card, to learn AI.
+<strong>Reality:</strong> Every example in this catalog is designed for an ordinary laptop CPU. Nearly all
+finish in seconds, and none needs a graphics card.</li>
+<li><strong>Myth:</strong> A virtual environment protects your computer from the code you run.
+<strong>Reality:</strong> It only keeps packages separate. It isn't a security sandbox.</li>
+<li><strong>Myth:</strong> If code runs without an error, it worked.
+<strong>Reality:</strong> Code can run and still be wrong. Comparing against a known expected output is how
+you find out.</li>
+<li><strong>Myth:</strong> Random means unrepeatable.
+<strong>Reality:</strong> Computer randomness is generated from a seed. The same seed gives the same results.</li>
+</ul>
+</section><section class="lesson-section" id="hands-on-exercise"><h2>Hands-on exercise</h2><p><strong>Goal:</strong> practise the expected-output habit by making a program print <em>exactly</em> the required lines.</p>
+<p>Open <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/06-your-toolkit/exercises/match_the_output.py">exercises/match_the_output.py</a>. It holds the morning ferry
+departures as minutes after midnight. Complete <code>as_clock()</code> and <code>main()</code> so the program prints
+exactly:</p>
+<pre><code class="language-text">ferry departures: 7 per morning
+first: 07:00  last: 10:00
+gap between departures: 30 minutes
+ferries before 08:30: 3
+</code></pre>
+<details>
+<summary>Solution</summary>
+<p>The full solution is in
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/06-your-toolkit/exercises/solutions/match_the_output.py">exercises/solutions/match_the_output.py</a>. The key line
+turns minutes into a clock time:</p>
+<pre><code class="language-python">hours, mins = divmod(minutes, 60)      # 420 -&gt; (7, 0)
+return f&quot;{hours:02d}:{mins:02d}&quot;       # &quot;07:00&quot;
+</code></pre>
+<p><code>:02d</code> pads with a leading zero. Without it you'd print &quot;7:0&quot;, which doesn't match. Exact
+comparison catches small differences like this, which is exactly why the catalog uses it.</p>
+</details>
+</section><section class="lesson-section" id="check-your-understanding"><h2>Check your understanding</h2><div class="quiz" data-lesson="L0-06" data-count="5"><ol class="questions"><li class="question" data-kind="single" data-answer="B"><div class="q-text">What does a virtual environment do?</div><fieldset><legend class="visually-hidden">Options for question 1</legend><label class="option"><input type="radio" name="L0-06-q1" value="A"><span class="letter">A.</span> <span>Runs your code on a remote server</span></label><label class="option"><input type="radio" name="L0-06-q1" value="B"><span class="letter">B.</span> <span>Gives a project its own private set of Python packages</span></label><label class="option"><input type="radio" name="L0-06-q1" value="C"><span class="letter">C.</span> <span>Protects your computer from harmful code</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> It keeps one project's packages separate from others. It runs locally, not on a server
+(A), and it isn't a security sandbox (C).</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,B"><div class="q-text">Why do the catalog's examples fix a random seed? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 2</legend><label class="option"><input type="checkbox" name="L0-06-q2" value="A"><span class="letter">A.</span> <span>So the output is the same every time you run them</span></label><label class="option"><input type="checkbox" name="L0-06-q2" value="B"><span class="letter">B.</span> <span>So you can check your output against the documented expected output</span></label><label class="option"><input type="checkbox" name="L0-06-q2" value="C"><span class="letter">C.</span> <span>So the code runs faster</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, B.</strong> A fixed seed makes the &quot;random&quot; choices repeatable, which is what makes an exact
+expected output possible. It has no effect on speed (C).</p>
+</div></li><li class="question" data-kind="single" data-answer="B"><div class="q-text">You run an example and get <code>ModuleNotFoundError: No module named 'numpy'</code>, even though you installed the packages yesterday. What's the most likely cause?</div><fieldset><legend class="visually-hidden">Options for question 3</legend><label class="option"><input type="radio" name="L0-06-q3" value="A"><span class="letter">A.</span> <span>NumPy was uninstalled overnight</span></label><label class="option"><input type="radio" name="L0-06-q3" value="B"><span class="letter">B.</span> <span>The virtual environment isn't active in this terminal</span></label><label class="option"><input type="radio" name="L0-06-q3" value="C"><span class="letter">C.</span> <span>Your Python version is too new</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> Activation only lasts for one terminal session. Activate the environment again (or run
+its Python directly). A is very unlikely, and a newer Python (C) isn't what causes this error.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text">Why does every <code>requirements.txt</code> in the catalog pin exact versions, such as <code>numpy==2.4.6</code>, instead of <code>numpy</code> or <code>numpy&gt;=2</code>?</div><label class="visually-hidden" for="L0-06-q4-text">Your answer</label><textarea id="L0-06-q4-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>So that everyone runs the same code and gets the same results. A newer version could change
+behaviour or even just number formatting, which would break the exact expected outputs. Pinning
+also reduces supply-chain risk, because an unexpected new release can't be installed silently.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text"><strong>Explain it to a colleague:</strong> explain why &quot;it ran without errors&quot; isn't enough to know that a program worked, and what the catalog does about it.</div><label class="visually-hidden" for="L0-06-q5-text">Your answer</label><textarea id="L0-06-q5-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>A program can run to the end and still compute the wrong thing, for example because of a
+different package version or a subtle bug. The catalog documents the exact expected output of
+every example and makes the code deterministic with fixed seeds and pinned versions, so you can
+compare your output line by line and know it really worked.</p>
+</div></li></ol><p class="quiz-score" aria-live="polite"></p></div></section><section class="lesson-section" id="key-terms"><h2>Key terms</h2><ul>
+<li><a href="../glossary.html#array">Array</a></li>
+<li><a href="../glossary.html#dependency-pinning">Dependency pinning</a></li>
+<li><a href="../glossary.html#deterministic">Deterministic</a></li>
+<li><a href="../glossary.html#docstring">Docstring</a></li>
+<li><a href="../glossary.html#numpy">NumPy</a></li>
+<li><a href="../glossary.html#package">Package</a></li>
+<li><a href="../glossary.html#python">Python</a></li>
+<li><a href="../glossary.html#random-seed">Random seed</a></li>
+<li><a href="../glossary.html#terminal">Terminal</a></li>
+<li><a href="../glossary.html#typosquatting">Typosquatting</a></li>
+<li><a href="../glossary.html#virtual-environment">Virtual environment</a></li>
+</ul>
+</section><section class="lesson-section" id="further-reading"><h2>Further reading</h2><ul>
+<li>🟢 <strong>The Python Tutorial</strong> — Python Software Foundation. The official, free introduction to the
+language. <a href="https://docs.python.org/3/tutorial/">https://docs.python.org/3/tutorial/</a></li>
+<li>🟡 <strong>venv — Creation of virtual environments</strong> — Python Software Foundation. The official
+reference for virtual environments. <a href="https://docs.python.org/3/library/venv.html">https://docs.python.org/3/library/venv.html</a></li>
+<li>🟡 <strong>NumPy: the absolute basics for beginners</strong> — NumPy documentation. A gentle introduction to
+arrays. <a href="https://numpy.org/doc/stable/user/absolute_beginners.html">https://numpy.org/doc/stable/user/absolute_beginners.html</a></li>
+<li>🔴 <strong>Installing packages using pip and virtual environments</strong> — Python Packaging User Guide.
+Includes guidance on requirements files and pinning.
+<a href="https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/">https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/</a></li>
+</ul>
+</section><section class="lesson-section" id="next"><h2>Next</h2><ul>
+<li><strong>Next lesson:</strong> L1-01 Vectors, Matrices and Similarity <em>(planned)</em>. Level 1 starts the
+foundations, and from here on most lessons include code.</li>
+<li><strong>Related:</strong> L3-01 introduces the shared model interface used by every later code example.
+L6-05 covers supply-chain security for packages, models and datasets.</li>
+</ul>
+</section>
+    <div class="complete-box">
+      <button type="button" class="btn primary mark-complete" data-lesson="L0-06">Mark lesson as complete</button>
+      <p class="complete-status" aria-live="polite"></p>
+    </div>
+    <nav class="pager" aria-label="Lesson navigation"><a class="pager-prev" href="L0-05.html" rel="prev"><small>Previous</small>L0-05 How to Use This Catalog</a><span class="pager-next disabled"><small>Next (coming soon)</small>L1-01 Vectors, Matrices and Similarity</span></nav>
+  </article>
+</div>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="../about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>

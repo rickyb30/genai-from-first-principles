@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Generative AI from First Principles</title>
+<meta name="description" content="An open, vendor-neutral catalog that teaches generative AI from first principles.">
+<link rel="stylesheet" href="style.css?v=2026-11-11">
+
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="data.js?v=2026-11-11"></script>
+<script defer src="app.js?v=2026-11-11"></script>
+</head>
+<body data-root="">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="index.html" aria-current="page">Home</a></li>
+<li><a href="curriculum.html">Curriculum</a></li>
+<li><a href="paths.html">Learning paths</a></li>
+<li><a href="glossary.html">Glossary & flashcards</a></li>
+<li><a href="progress.html">Progress</a></li>
+<li><a href="about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<section class="hero">
+  <h1>Generative AI,<br>from first principles</h1>
+  <p class="lead">An open, vendor-neutral catalog that takes you from no AI knowledge to an expert
+  understanding of how generative AI works, how to build with it, and how to run, secure and govern it.</p>
+  <div class="hero-actions">
+    <a class="btn primary" href="lessons/L0-01.html" id="continue-link">Start learning</a>
+    <a class="btn" href="paths.html">Choose a learning path</a>
+  </div>
+  <p class="hero-note">6 of 92 lessons available · free · no account needed · works offline once loaded</p>
+</section>
+<section class="layers" aria-labelledby="layers-title">
+  <h2 id="layers-title">Read at your depth</h2>
+  <ul class="layer-cards">
+    <li><span class="depth-dot green" aria-hidden="true"></span><h3>Core idea</h3><p>For everyone. Intuition, analogies, diagrams and worked examples. No code or math needed.</p></li>
+    <li><span class="depth-dot yellow" aria-hidden="true"></span><h3>How it works</h3><p>For practitioners. The mechanics, with runnable code and common pitfalls.</p></li>
+    <li><span class="depth-dot red" aria-hidden="true"></span><h3>Going deeper</h3><p>For aspiring experts. Math, trade-offs, failure modes at scale and open questions.</p></li>
+  </ul>
+</section>
+<section aria-labelledby="levels-title">
+  <h2 id="levels-title">Eight levels</h2>
+  <ul class="level-cards"><li class="level-card is-open" data-level="0"><a href="curriculum.html#level-0"><span class="level-num">Level 0</span><span class="level-title">Orientation</span><span class="level-info">6 lessons · available</span><span class="level-bar" data-level="0"><span></span></span></a></li><li class="level-card " data-level="1"><a href="curriculum.html#level-1"><span class="level-num">Level 1</span><span class="level-title">Foundations for Generative AI</span><span class="level-info">10 lessons · coming soon</span><span class="level-bar" data-level="1"><span></span></span></a></li><li class="level-card " data-level="2"><a href="curriculum.html#level-2"><span class="level-num">Level 2</span><span class="level-title">Deep Learning &amp; Generative Models</span><span class="level-info">15 lessons · coming soon</span><span class="level-bar" data-level="2"><span></span></span></a></li><li class="level-card " data-level="3"><a href="curriculum.html#level-3"><span class="level-num">Level 3</span><span class="level-title">Building with Language Models</span><span class="level-info">14 lessons · coming soon</span><span class="level-bar" data-level="3"><span></span></span></a></li><li class="level-card " data-level="4"><a href="curriculum.html#level-4"><span class="level-num">Level 4</span><span class="level-title">Agentic Systems</span><span class="level-info">11 lessons · coming soon</span><span class="level-bar" data-level="4"><span></span></span></a></li><li class="level-card " data-level="5"><a href="curriculum.html#level-5"><span class="level-num">Level 5</span><span class="level-title">Production AI Engineering</span><span class="level-info">11 lessons · coming soon</span><span class="level-bar" data-level="5"><span></span></span></a></li><li class="level-card " data-level="6"><a href="curriculum.html#level-6"><span class="level-num">Level 6</span><span class="level-title">Safety, Security &amp; Governance</span><span class="level-info">13 lessons · coming soon</span><span class="level-bar" data-level="6"><span></span></span></a></li><li class="level-card " data-level="7"><a href="curriculum.html#level-7"><span class="level-num">Level 7</span><span class="level-title">Expert &amp; Frontier Topics</span><span class="level-info">12 lessons · coming soon</span><span class="level-bar" data-level="7"><span></span></span></a></li></ul>
+  <figure class="wide-figure">
+    <img src="img/assets/diagrams/level_map.png" alt="Level dependency map: L0 through L4 in a row as the core path, then L5 and L6 in parallel, both feeding L7">
+    <figcaption>Levels L0 to L4 run in order. L5 and L6 both build on L4 and can be read in either order. L7 needs all earlier levels.</figcaption>
+  </figure>
+</section>
+<section class="how" aria-labelledby="how-title">
+  <h2 id="how-title">Learn it so it sticks</h2>
+  <ol class="loop">
+    <li><strong>Read</strong> the core idea, and go deeper if you want.</li>
+    <li><strong>Try</strong> the code or the exercise.</li>
+    <li><strong>Check</strong> yourself with the quiz, before peeking.</li>
+    <li><strong>Review</strong> key terms as <a href="glossary.html">flashcards</a>, spaced over days.</li>
+  </ol>
+</section>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>

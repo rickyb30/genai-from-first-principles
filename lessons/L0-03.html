@@ -1,0 +1,474 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A Short History: From Rules to Generative Models · Generative AI from First Principles</title>
+<meta name="description" content="AI has moved in waves: bursts of excitement and funding, followed by disappointment and &quot;AI winters&quot; when promises outran results. The field shifted from hand-written rules, to learning from data, to deep neural networks, to today&#x27;s large generative models. Each wave was powered by a new idea plus m">
+<link rel="stylesheet" href="../style.css?v=2026-11-11">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css">
+<script defer src="../vendor/katex/katex.min.js"></script>
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="../data.js?v=2026-11-11"></script>
+<script defer src="../app.js?v=2026-11-11"></script>
+</head>
+<body data-root="../">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="../index.html">Home</a></li>
+<li><a href="../curriculum.html">Curriculum</a></li>
+<li><a href="../paths.html">Learning paths</a></li>
+<li><a href="../glossary.html">Glossary & flashcards</a></li>
+<li><a href="../progress.html">Progress</a></li>
+<li><a href="../about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<div class="lesson-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol><li class=""><a href="#learning-objectives">Learning objectives</a></li><li class=""><a href="#why-this-matters">Why this matters</a></li><li class="green"><a href="#-core-idea-everyone"><span class="depth-dot green" aria-hidden="true"></span>Core idea (everyone)</a></li><li class="yellow"><a href="#-how-it-works-practitioner"><span class="depth-dot yellow" aria-hidden="true"></span>How it works (practitioner)</a></li><li class="red"><a href="#-going-deeper-expert"><span class="depth-dot red" aria-hidden="true"></span>Going deeper (expert)</a></li><li class=""><a href="#common-misconceptions">Common misconceptions</a></li><li class=""><a href="#hands-on-exercise">Hands-on exercise</a></li><li class=""><a href="#check-your-understanding">Check your understanding</a></li><li class=""><a href="#key-terms">Key terms</a></li><li class=""><a href="#further-reading">Further reading</a></li><li class=""><a href="#next">Next</a></li></ol>
+  </aside>
+  <article class="lesson" data-lesson="L0-03">
+    <p class="breadcrumb"><a href="../curriculum.html#level-0">Level 0</a> · Module 0A Orientation</p>
+    <h1>A Short History: From Rules to Generative Models</h1>
+    <div class="tldr"><strong>TL;DR</strong> AI has moved in waves: bursts of excitement and funding, followed by disappointment and &quot;AI winters&quot; when promises outran results. The field shifted from hand-written rules, to learning from data, to deep neural networks, to today's large generative models. Each wave was powered by a new idea <em>plus</em> more data and faster computers, and each one came with predictions that turned out too optimistic.</div>
+    <ul class="meta">
+      <li><span aria-hidden="true">⏱</span> 30 min</li>
+      <li>Prerequisites: <a href="L0-02.html">L0-02</a></li>
+      <li>Last reviewed: 2026-11-11</li>
+      <li><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/03-a-short-history/README.md">View source on GitHub</a></li>
+    </ul>
+    <div class="depth-filter" role="group" aria-label="Reading depth">
+      <span class="depth-label">Reading depth:</span>
+      <button type="button" data-depth="green" aria-pressed="false"><span class="depth-dot green" aria-hidden="true"></span> Core</button>
+      <button type="button" data-depth="yellow" aria-pressed="false"><span class="depth-dot yellow" aria-hidden="true"></span> + Practitioner</button>
+      <button type="button" data-depth="red" aria-pressed="true"><span class="depth-dot red" aria-hidden="true"></span> + Expert</button>
+    </div>
+    <section class="lesson-section" id="learning-objectives"><h2>Learning objectives</h2><p>By the end you will be able to:</p>
+<ol>
+<li><strong>Describe</strong> the main eras of AI, from the 1950s to generative AI, and what drove each one.</li>
+<li><strong>Explain</strong> what an AI winter was and why two of them happened.</li>
+<li><strong>Identify</strong> the three ingredients behind modern progress: algorithms, data and computation.</li>
+<li><strong>Implement</strong> (or run) a 1948-style statistical text generator and explain how it connects to modern language models.</li>
+</ol>
+</section><section class="lesson-section" id="why-this-matters"><h2>Why this matters</h2><p>History is the best protection against hype, in both directions. Every era of AI produced
+confident predictions that machines would soon match people, and every era also produced
+experts who declared the approach a dead end. Some of those &quot;dead ends&quot;, such as neural networks,
+became the foundation of today's systems. Knowing the pattern helps you judge new claims calmly:
+ask what actually works today, what it depends on, and what history says about extrapolating.</p>
+</section><section class="lesson-section" id="-core-idea-everyone" data-depth="green"><h2>🟢 Core idea (everyone)</h2><h3 id="the-big-picture">The big picture</h3>
+<p><img src="../img/curriculum/level-0-orientation/03-a-short-history/diagrams/timeline.png" alt="A simplified timeline of AI in eight stages: the field is born in the 1950s, early optimism until the early 1970s, the first AI winter in the mid-1970s, expert systems in the 1980s, the second AI winter from the late 1980s to early 1990s, learning from data in the 1990s and 2000s, deep learning in the 2010s, and generative AI from the late 2010s to now" /></p>
+<p><em>AI moved through waves of progress separated by two &quot;AI winters&quot;; the dates of the winters are approximate.</em></p>
+<p>An <strong>AI winter</strong> is a period when funding, interest and progress in AI fall sharply, usually
+after early promises go unmet. The term borrows from the seasons.</p>
+<p><strong>An analogy.</strong> Think of a new technology like a gold rush. News of early finds brings a rush of
+people and money. When the easy gold runs out and the hard rock remains, most leave. A few keep
+digging, and sometimes find a richer seam years later.</p>
+<p><strong>Where the analogy breaks down:</strong> gold doesn't get easier to find over time. In AI, the &quot;hard
+rock&quot; often softened by itself: computers got faster and data got more plentiful, so ideas that
+failed in one decade worked in a later one. And unlike seasons, winters aren't guaranteed to
+repeat. They're a pattern in history, not a law of nature.</p>
+<h3 id="1950s-the-field-is-born">1950s: the field is born</h3>
+<p>In 1950, Alan Turing published <em>Computing Machinery and Intelligence</em>, which asked &quot;Can machines
+think?&quot; and proposed replacing that vague question with a test, now called the <strong>Turing test</strong>:
+can a machine hold a text conversation that an interrogator can't tell apart from a person's?</p>
+<p>In 1955, John McCarthy, Marvin Minsky, Nathaniel Rochester and Claude Shannon wrote the proposal
+for a 1956 summer workshop at Dartmouth College. That proposal coined the term &quot;artificial
+intelligence&quot;. It confidently suggested that significant progress could be made in a single
+summer by a small group of scientists. That optimism set the tone for decades.</p>
+<h3 id="1956-to-the-early-1970s-early-optimism">1956 to the early 1970s: early optimism</h3>
+<p>Early programs proved theorems in logic, solved algebra problems and played checkers. Two
+landmarks matter for this catalog:</p>
+<ul>
+<li><strong>The perceptron (1958).</strong> Frank Rosenblatt's perceptron was an early learning machine built
+from <strong>artificial neurons</strong> (simple units that combine their inputs into one output), with a
+single trainable layer. It learned from examples: a distant ancestor of today's neural networks.</li>
+<li><strong>ELIZA (1966).</strong> Joseph Weizenbaum's ELIZA was an early <strong>chatbot</strong>: a program that converses
+in text. It matched patterns in what the user typed and filled in templates (&quot;Tell me more
+about your family&quot;). It understood nothing, yet some users became emotionally attached to it.
+Weizenbaum himself became a critic of over-trusting machines.</li>
+</ul>
+<p>In 1969, Minsky and Seymour Papert's book <em>Perceptrons</em> showed mathematically that a single-layer
+perceptron can't learn some simple patterns. Interest in neural networks fell sharply afterwards.
+How much the book <em>caused</em> that decline, rather than reflected it, is still debated by
+historians.</p>
+<h3 id="the-mid-1970s-the-first-ai-winter">The mid-1970s: the first AI winter</h3>
+<p>Early programs worked on small, tidy problems but didn't scale to messy real-world ones. In the
+UK, the 1973 Lighthill report criticized the field's failure to meet its promises, and UK
+government funding was cut sharply. Funding agencies in the United States also cut back on
+open-ended AI research. Progress continued, but slowly and with less money.</p>
+<h3 id="the-1980s-expert-systems">The 1980s: expert systems</h3>
+<p>AI came back as <strong>expert systems</strong>: programs that captured a specialist's knowledge as hundreds
+or thousands of hand-written &quot;if… then…&quot; rules. MYCIN, a 1970s research system at Stanford,
+recommended antibiotic treatments for serious bacterial infections. In the 1980s, companies
+built and sold expert systems widely, and governments funded large AI programs again, including Japan's Fifth Generation
+Computer Systems project, launched in 1982.</p>
+<h3 id="the-late-1980s-to-the-early-1990s-the-second-ai-winter">The late 1980s to the early 1990s: the second AI winter</h3>
+<p>Expert systems proved brittle: they failed badly on any case their rules didn't anticipate,
+and updating thousands of rules was expensive. The market for specialized AI hardware collapsed
+around 1987, as ordinary desktop computers caught up. Funding and interest fell again.</p>
+<h3 id="the-1990s-and-2000s-learning-from-data">The 1990s and 2000s: learning from data</h3>
+<p>The field shifted from writing rules to learning them. Statistical machine learning methods
+became standard for tasks like spam filtering, speech recognition and web search. For much of
+this period, other statistical methods beat neural networks on most tasks, and many researchers
+set neural networks aside: their second fall from favour. Research on them continued, though. In
+1986, David Rumelhart, Geoffrey Hinton and Ronald Williams popularized <strong>backpropagation</strong>, the
+method still used to train neural networks: it works out how much each parameter contributed to
+an error, so each one can be adjusted to reduce it (Level 1 teaches it). Earlier versions of the idea existed. By the late 1980s, Yann LeCun and colleagues
+were using neural networks to read handwritten digits on postal mail.</p>
+<p>In 1997, a chess computer called Deep Blue beat the world champion, Garry Kasparov. It relied
+mainly on fast search and a scoring function designed largely by people, not on learning from
+data in the modern sense.</p>
+<h3 id="the-2010s-deep-learning">The 2010s: deep learning</h3>
+<p>Three ingredients came together:</p>
+<ol>
+<li><strong>Data.</strong> The internet made huge datasets possible. ImageNet (2009) had millions of labelled images.</li>
+<li><strong>Computation.</strong> <strong>Graphics processing units (GPUs)</strong>, chips designed for video games, turned
+out to be very good at the arithmetic neural networks need.</li>
+<li><strong>Algorithms.</strong> Better training techniques made networks with many layers practical.</li>
+</ol>
+<p>In 2012, a deep neural network won the ImageNet image-recognition competition by a large margin.
+That result, often called the AlexNet moment, convinced much of the field to switch to deep
+learning. In 2016, a Go-playing system that combined deep learning with search defeated Lee Sedol,
+one of the world's strongest players: a milestone many experts had expected to take considerably
+longer.</p>
+<h3 id="the-late-2010s-to-now-generative-ai">The late 2010s to now: generative AI</h3>
+<ul>
+<li><strong>2013–2014:</strong> new kinds of generative models (variational autoencoders and generative
+adversarial networks) learned to generate new images. Early results were small and blurry;
+quality improved quickly over the following years.</li>
+<li><strong>2017:</strong> the paper <em>Attention Is All You Need</em> introduced the <strong>transformer</strong>, a neural network
+design built around a mechanism called <strong>attention</strong>: a way for the model to weigh how much
+each earlier word matters when predicting the next. As of November 2026, it's the basis of
+nearly all large language models. Level 2 builds one.</li>
+<li><strong>2018–2020:</strong> researchers trained ever-larger transformers on ever more text, and found that
+performance improved predictably with <strong>scale</strong>: more parameters, data and computation.</li>
+<li><strong>2020–2022:</strong> diffusion models rapidly improved image generation, and by 2022 could produce
+high-quality images from text descriptions. Training with human feedback made language models
+far better at following instructions.</li>
+<li><strong>November 2022:</strong> a free public chat interface to a large language model drew a mass
+audience. For many people, that was their first encounter with generative AI.</li>
+</ul>
+<h3 id="a-worked-example-text-from-statistics-in-1948">A worked example: text from statistics, in 1948</h3>
+<p>The idea of generating text from statistics is older than the computers that now do it. In his
+1948 paper <em>A Mathematical Theory of Communication</em>, Claude Shannon produced English-like text by
+choosing each letter at random, using the frequencies of letters in real English. Then he used
+the frequency of each letter <em>given the previous one</em>, then the previous two, and then did the
+same with whole words. The more context, the more English-like the result. He did this without
+a computer: for the higher-order examples, he used an ordinary book, opening it at random and
+reading on until the current letters appeared, then taking the letter that came next.</p>
+<p>This lesson's code repeats the experiment on a 152-word passage about the fictional town of
+Brindlewick, going one step further than Shannon's printed examples (4 letters of context).
+Here's what it produced:</p>
+<table>
+<thead>
+<tr>
+<th>Context used</th>
+<th>Generated text</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>none, all letters equally likely</td>
+<td><code>nglbunkzvfhadm uawecjnxxdyiwuubyazbfqr bo omcdkenavuxn qgazi</code></td>
+</tr>
+<tr>
+<td>none, letters by frequency</td>
+<td><code>no atshhaitesl p  rou  cv seien isc  estnsdcadronsenntarstoo</code></td>
+</tr>
+<tr>
+<td>1 previous letter</td>
+<td><code>balo meun crs mofisicke fo rethocle t wnd thay d fe are o g</code></td>
+</tr>
+<tr>
+<td>2 previous letters</td>
+<td><code>brary closeum in tre is town the rive muses the the of hast</code></td>
+</tr>
+<tr>
+<td>4 previous letters</td>
+<td><code>brindlewick is wound by hand everyone the library open to ca</code></td>
+</tr>
+<tr>
+<td>none, words by frequency</td>
+<td><code>market museum stops of the on the every in the</code></td>
+</tr>
+<tr>
+<td>1 previous word</td>
+<td><code>brindlewick is closed to everyone who arrive by train can walk to</code></td>
+</tr>
+</tbody>
+</table>
+<p>Each step uses the same recipe, <em>predict the next piece from the pieces before it</em>, with more
+context. That's exactly the recipe of a modern language model. The difference is scale and
+sophistication: as of November 2026, large language models condition on many thousands of
+previous tokens (pieces of text, see L0-01) and learn from trillions of them, using neural
+networks instead of frequency tables.</p>
+</section><section class="lesson-section" id="-how-it-works-practitioner" data-depth="yellow"><h2>🟡 How it works (practitioner)</h2><h3 id="recreating-shannons-approximations">Recreating Shannon's approximations</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/03-a-short-history/code/shannon_approximations.py">code/shannon_approximations.py</a> uses only the standard library.
+Run it from this lesson's folder:</p>
+<pre><code class="language-bash">python code/shannon_approximations.py
+</code></pre>
+<p>The core of the letter generator counts, for every run of <code>context</code> letters, which letter came
+next and how often. It then samples from those counts:</p>
+<pre><code class="language-python">follows = defaultdict(Counter)
+for i in range(len(text) - context):
+    follows[text[i:i + context]][text[i + context]] += 1
+</code></pre>
+<p>For example, with 2 letters of context, <code>follows[&quot;th&quot;]</code> might be <code>{&quot;e&quot;: 18, &quot; &quot;: 2, ...}</code>, so
+after &quot;th&quot; the generator picks &quot;e&quot; most of the time. <code>rng.choices(symbols, weights)</code> then
+picks the next letter with probability proportional to its count. This is the same move as
+L0-01's word generator: count what follows what, then sample.</p>
+<p>Each line of the output adds context, and you can watch the text become more English-like:
+real words appear with 2 letters of context, and whole phrases with 4.</p>
+<h3 id="reading-history-like-an-engineer">Reading history like an engineer</h3>
+<p>The timeline can look like a story of steady genius. It's more useful to read it as a series of
+<strong>bottlenecks</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Era</th>
+<th>What limited progress</th>
+<th>What unlocked the next step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Symbolic AI</td>
+<td>Real-world knowledge is too large and messy to write as rules</td>
+<td>Learning rules from data</td>
+</tr>
+<tr>
+<td>Early neural networks</td>
+<td>Training many layers didn't work well; too little data and computation</td>
+<td>Backpropagation, large datasets, GPUs</td>
+</tr>
+<tr>
+<td>Deep learning</td>
+<td>Each task needed its own labelled dataset</td>
+<td>Self-supervised training on huge unlabelled text</td>
+</tr>
+<tr>
+<td>Generative AI</td>
+<td>Cost of computation, data quality, reliability</td>
+<td>Still being worked out</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-pitfalls">Common pitfalls</h3>
+<ul>
+<li><strong>Assuming progress is steady.</strong> It has come in jumps, separated by plateaus.</li>
+<li><strong>Treating history as hero stories.</strong> Most breakthroughs had earlier versions, and depended on
+hardware and data that the inventors didn't control.</li>
+<li><strong>Copying old predictions into new contexts.</strong> &quot;Human-level AI in 20 years&quot; has been
+predicted repeatedly since the 1950s. Treat new timelines with the same caution.</li>
+</ul>
+</section><section class="lesson-section" id="-going-deeper-expert" data-depth="red"><h2>🔴 Going deeper (expert)</h2><h3 id="the-three-ingredients-and-their-interaction">The three ingredients, and their interaction</h3>
+<p>Modern progress is usually attributed to algorithms, data and computation. They don't act
+independently. The transformer replaced step-by-step recurrence with attention, which processes
+all positions of a sequence in parallel. That made it a much better fit for GPUs than earlier
+sequence models. So an algorithmic change unlocked more effective use of available computation,
+which in turn made training on far larger datasets practical. L2-04 to L2-08 explain why.</p>
+<h3 id="why-counting-tables-hit-a-wall-data-sparsity">Why counting tables hit a wall: data sparsity</h3>
+<p>Shannon-style generators are <strong>n-gram models</strong>: they predict the next symbol from counts of the
+previous <span class="math inline">n-1</span> symbols. Their weakness is arithmetic. With 27 symbols (26 letters and a space),
+there are <span class="math inline">27^k</span> possible contexts of length <span class="math inline">k</span>: 531,441 for <span class="math inline">k = 4</span>, and about
+<span class="math inline">2.8 \times 10^{11}</span> for <span class="math inline">k = 8</span>. Any real text covers a vanishing fraction of them. In this
+lesson's 777-character passage:</p>
+<table>
+<thead>
+<tr>
+<th>Context length <span class="math inline">k</span></th>
+<th>Possible contexts (<span class="math inline">27^k</span>)</th>
+<th>Distinct contexts that occur</th>
+<th>Share with only one possible next letter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>729</td>
+<td>164</td>
+<td>49%</td>
+</tr>
+<tr>
+<td>4</td>
+<td>531,441</td>
+<td>497</td>
+<td>89%</td>
+</tr>
+<tr>
+<td>6</td>
+<td>about <span class="math inline">3.9 \times 10^{8}</span></td>
+<td>636</td>
+<td>96%</td>
+</tr>
+<tr>
+<td>8</td>
+<td>about <span class="math inline">2.8 \times 10^{11}</span></td>
+<td>710</td>
+<td>98%</td>
+</tr>
+</tbody>
+</table>
+<p>With long contexts, nearly every context has been seen once, with exactly one continuation. The
+model can only recite (the exercise below shows this). With short contexts, it has plenty of
+statistics but too little context to make sense. Real text is so varied that this tension
+doesn't go away with more data: most long contexts in any new sentence have never been seen
+before.</p>
+<p>Statistical language modelling spent decades on partial fixes, such as <strong>smoothing</strong> methods
+that borrow probability from shorter contexts. The lasting fix was to stop treating each context
+as a separate row in a table. Neural language models represent words and contexts as vectors of
+learned numbers, so <em>similar</em> contexts share what they've learned, even when an exact context has
+never been seen. Bengio and colleagues made this argument in 2003. L1-10 builds a small model of
+that kind, and L2-02 explains the vectors, called embeddings.</p>
+<h3 id="scale-and-the-bitter-lesson">Scale, and the &quot;bitter lesson&quot;</h3>
+<p>In a widely read 2019 essay, <em>The Bitter Lesson</em>, Richard Sutton argued that across 70 years of AI
+research, general methods that make better use of more computation (search and learning)
+eventually beat methods that build in human knowledge. The success of large language models is
+often cited in support.</p>
+<blockquote>
+<p><strong>Open debate (as of November 2026):</strong> how far scale alone can go is contested. Some
+researchers expect continued gains from more computation and data. Others point to limits:
+available high-quality data, cost and energy, and persistent failures in reasoning and
+reliability, and argue new ideas are needed. Level 2 (scaling laws) and Level 7 (reasoning
+models, alternative architectures) present the evidence on both sides.</p>
+</blockquote>
+<h3 id="why-the-history-keeps-repeating">Why the history keeps repeating</h3>
+<p>Winters followed a common pattern: impressive demonstrations on narrow problems, extrapolated
+into broad promises; then the gap between demonstration and dependable real-world use became
+visible, and funding fell. The gap is the important part. Today's generative systems are far
+more useful than expert systems ever were, and they're used by vastly more people. But the
+same gap shows up in a new form: fluent output that is unreliable in ways that are hard to
+predict. Much of Levels 4–6 of this catalog is about engineering that gap closed.</p>
+<h3 id="a-note-on-sources">A note on sources</h3>
+<p>This summary simplifies a contested history. Dates of the winters vary between accounts, and
+the causes (funding policy, technical limits, hardware markets, individual reports) are weighted
+differently by different historians. For a fuller picture, read the primary sources and
+histories in Further reading.</p>
+</section><section class="lesson-section" id="common-misconceptions"><h2>Common misconceptions</h2><ul>
+<li><strong>Myth:</strong> AI was invented recently.
+<strong>Reality:</strong> The term dates from 1955. Neural networks, chatbots and statistical text
+generation all date from the 1940s to the 1960s.</li>
+<li><strong>Myth:</strong> Neural networks were always the obvious way forward.
+<strong>Reality:</strong> They fell out of favour twice. For long periods, most researchers thought other
+approaches were more promising.</li>
+<li><strong>Myth:</strong> The chess win in 1997 was an early triumph of machine learning.
+<strong>Reality:</strong> It mainly used fast search and hand-tuned evaluation, which is symbolic AI.</li>
+<li><strong>Myth:</strong> Generative AI started in 2022.
+<strong>Reality:</strong> 2022 was when it reached a mass audience. The research behind it built up over
+the preceding decade, and statistical text generation goes back to 1948.</li>
+</ul>
+</section><section class="lesson-section" id="hands-on-exercise"><h2>Hands-on exercise</h2><p><strong>Goal:</strong> see what happens when the letter generator gets <em>more</em> context than the 4 letters used
+above, and connect it to a real issue with large models.</p>
+<p>Open <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/03-a-short-history/exercises/more_context.py">exercises/more_context.py</a>, complete <code>longest_copied_run()</code>, and
+run it for 2, 6, 8 and 12 letters of context. Before running, predict: will the text get better,
+worse, or something else?</p>
+<details>
+<summary>Solution</summary>
+<p>The full solution is in
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/03-a-short-history/exercises/solutions/more_context.py">exercises/solutions/more_context.py</a>:</p>
+<pre><code class="language-text"> 2 letters of context: brain thas halk a museves a librarket on the rives crosseum
+   longest copied run: 10 of 60 characters
+ 6 letters of context: brindlewick is a small town council meets on the east bank o
+   longest copied run: 28 of 60 characters
+ 8 letters of context: brindlewick is a small town on the east bank of the river as
+   longest copied run: 60 of 60 characters
+12 letters of context: brindlewick is a small town on the east bank of the river as
+   longest copied run: 60 of 60 characters
+</code></pre>
+<p>With 8 or more letters of context, the generator copies the source word for word. In a
+152-word text, almost every 8-letter context appears only once, so there's only one possible next
+letter. The model has <strong>memorized</strong> the text rather than learned general patterns. Large models
+can do this too, especially with text they saw many times, which is why memorization is a
+privacy and copyright concern (Level 6).</p>
+</details>
+</section><section class="lesson-section" id="check-your-understanding"><h2>Check your understanding</h2><div class="quiz" data-lesson="L0-03" data-count="5"><ol class="questions"><li class="question" data-kind="single" data-answer="A"><div class="q-text">Which pairing best matches the causes of the two AI winters?</div><fieldset><legend class="visually-hidden">Options for question 1</legend><label class="option"><input type="radio" name="L0-03-q1" value="A"><span class="letter">A.</span> <span>First winter: early programs didn't scale beyond small, tidy problems, and funders lost patience. Second winter: expert systems proved brittle and costly to maintain, and the specialized hardware market collapsed</span></label><label class="option"><input type="radio" name="L0-03-q1" value="B"><span class="letter">B.</span> <span>First winter: expert systems proved brittle. Second winter: neural networks failed on ImageNet</span></label><label class="option"><input type="radio" name="L0-03-q1" value="C"><span class="letter">C.</span> <span>Both winters: computers were too slow to run any AI program at all</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A.</strong> The mid-1970s winter followed the failure of early systems to scale to real-world
+problems, with critical reviews such as the 1973 Lighthill report and cuts in funding. The
+winter from the late 1980s followed the expert-system boom: rule systems broke on cases they
+didn't anticipate, and the market for specialized AI hardware collapsed around 1987. B mixes
+up the eras (ImageNet came in 2009, long after both winters), and C overstates hardware's role.</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,B,D"><div class="q-text">Which developments helped make deep learning succeed in the 2010s? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 2</legend><label class="option"><input type="checkbox" name="L0-03-q2" value="A"><span class="letter">A.</span> <span>Large labelled datasets such as ImageNet</span></label><label class="option"><input type="checkbox" name="L0-03-q2" value="B"><span class="letter">B.</span> <span>GPUs that could do neural-network arithmetic quickly</span></label><label class="option"><input type="checkbox" name="L0-03-q2" value="C"><span class="letter">C.</span> <span>Replacing learning with hand-written expert rules</span></label><label class="option"><input type="checkbox" name="L0-03-q2" value="D"><span class="letter">D.</span> <span>Better techniques for training networks with many layers</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, B, D.</strong> Data, computation and algorithms together. C describes the 1980s expert-system
+approach, which deep learning moved away from.</p>
+</div></li><li class="question" data-kind="single" data-answer="B"><div class="q-text">Which order is correct, from earliest to latest?</div><fieldset><legend class="visually-hidden">Options for question 3</legend><label class="option"><input type="radio" name="L0-03-q3" value="A"><span class="letter">A.</span> <span>Expert systems boom, perceptron, transformer, deep network wins the ImageNet competition</span></label><label class="option"><input type="radio" name="L0-03-q3" value="B"><span class="letter">B.</span> <span>Perceptron, expert systems boom, deep network wins the ImageNet competition, transformer</span></label><label class="option"><input type="radio" name="L0-03-q3" value="C"><span class="letter">C.</span> <span>Perceptron, transformer, expert systems boom, deep network wins the ImageNet competition</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> The perceptron came in 1958, the expert-systems boom in the 1980s, the ImageNet win in
+2012 and the transformer in 2017. The pattern to remember: learning from data (the perceptron)
+came early, fell out of favour while hand-written rules had their turn, and returned at scale.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text">In the worked example, why does the text become more English-like as the context grows from 0 to 4 letters?</div><label class="visually-hidden" for="L0-03-q4-text">Your answer</label><textarea id="L0-03-q4-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>With more previous letters to condition on, the generator's choices reflect more of the real
+structure of English: which letters follow which, then common syllables, then whole words.
+It's still just sampling from counts, but the counts capture longer patterns. Modern
+language models apply the same principle with far more context and learned representations
+instead of counts.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text"><strong>Explain it to a colleague:</strong> a colleague says, &quot;AI has been overhyped before, so this wave will collapse too.&quot; Give a balanced response using what you learned.</div><label class="visually-hidden" for="L0-03-q5-text">Your answer</label><textarea id="L0-03-q5-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>History does show repeated cycles of over-promising followed by winters, so skepticism about
+bold timelines is reasonable. But this wave differs in that the technology is already in wide,
+everyday use by the general public, which was never true of expert systems. The sensible position is to judge
+specific claims by what works reliably today, and to expect some predictions to fail without
+assuming the whole field will.</p>
+</div></li></ol><p class="quiz-score" aria-live="polite"></p></div></section><section class="lesson-section" id="key-terms"><h2>Key terms</h2><ul>
+<li><a href="../glossary.html#ai-winter">AI winter</a></li>
+<li><a href="../glossary.html#artificial-neuron">Artificial neuron</a></li>
+<li><a href="../glossary.html#attention">Attention</a></li>
+<li><a href="../glossary.html#backpropagation">Backpropagation</a></li>
+<li><a href="../glossary.html#chatbot">Chatbot</a></li>
+<li><a href="../glossary.html#expert-system">Expert system</a></li>
+<li><a href="../glossary.html#graphics-processing-unit-gpu">Graphics processing unit (GPU)</a></li>
+<li><a href="../glossary.html#memorization">Memorization</a></li>
+<li><a href="../glossary.html#n-gram-model">N-gram model</a></li>
+<li><a href="../glossary.html#scale">Scale</a></li>
+<li><a href="../glossary.html#smoothing">Smoothing</a></li>
+<li><a href="../glossary.html#transformer">Transformer</a></li>
+<li><a href="../glossary.html#turing-test">Turing test</a></li>
+</ul>
+</section><section class="lesson-section" id="further-reading"><h2>Further reading</h2><ul>
+<li>🟢 <strong>Computing Machinery and Intelligence</strong> — A. M. Turing (1950). <em>Mind</em>, 59(236), 433–460.
+Very readable, and still thought-provoking. The origin of the imitation game.
+<a href="https://doi.org/10.1093/mind/LIX.236.433">https://doi.org/10.1093/mind/LIX.236.433</a></li>
+<li>🟢 <strong>A Proposal for the Dartmouth Summer Research Project on Artificial Intelligence</strong> —
+J. McCarthy, M. L. Minsky, N. Rochester and C. E. Shannon (1955). The short proposal that named the field.</li>
+<li>🟡 <strong>A Mathematical Theory of Communication</strong> — C. E. Shannon (1948). <em>Bell System Technical
+Journal</em>. Section 3 contains the text approximations this lesson recreates.
+<a href="https://doi.org/10.1002/j.1538-7305.1948.tb01338.x">https://doi.org/10.1002/j.1538-7305.1948.tb01338.x</a></li>
+<li>🟡 <strong>The Bitter Lesson</strong> — Richard Sutton (2019). A short essay on why general methods that use
+computation tend to win. <a href="http://www.incompleteideas.net/IncIdeas/BitterLesson.html">http://www.incompleteideas.net/IncIdeas/BitterLesson.html</a></li>
+<li>🔴 <strong>Attention Is All You Need</strong> — Vaswani et al. (2017). The paper that introduced the
+transformer. <a href="https://arxiv.org/abs/1706.03762">https://arxiv.org/abs/1706.03762</a></li>
+<li>🔴 <strong>Artificial Intelligence: A Modern Approach</strong> — Russell and Norvig (4th ed., 2020).
+Chapter 1 includes a careful history of the field.</li>
+</ul>
+</section><section class="lesson-section" id="next"><h2>Next</h2><ul>
+<li><strong>Next lesson:</strong> <a href="../lessons/L0-04.html">L0-04 Capabilities, Limits and Responsible Use: A First Look</a></li>
+<li><strong>Related:</strong> L1-06 builds a trained version of this lesson's generator. L2-04 explains the
+attention mechanism that the transformer is built around.</li>
+</ul>
+</section>
+    <div class="complete-box">
+      <button type="button" class="btn primary mark-complete" data-lesson="L0-03">Mark lesson as complete</button>
+      <p class="complete-status" aria-live="polite"></p>
+    </div>
+    <nav class="pager" aria-label="Lesson navigation"><a class="pager-prev" href="L0-02.html" rel="prev"><small>Previous</small>L0-02 AI, ML, Deep Learning, Generative AI: The Nested Map</a><a class="pager-next" href="L0-04.html" rel="next"><small>Next</small>L0-04 Capabilities, Limits and Responsible Use: A First Look</a></nav>
+  </article>
+</div>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="../about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>

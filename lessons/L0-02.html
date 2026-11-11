@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI, ML, Deep Learning, Generative AI: The Nested Map · Generative AI from First Principles</title>
+<meta name="description" content="The four terms describe nested fields, like a set of boxes inside boxes. AI is the whole field. Machine learning is the part of AI that learns from data. Deep learning is the part of machine learning that uses large neural networks. Today&#x27;s generative AI is the part of deep learning that creates new">
+<link rel="stylesheet" href="../style.css?v=2026-11-11">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css">
+<script defer src="../vendor/katex/katex.min.js"></script>
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="../data.js?v=2026-11-11"></script>
+<script defer src="../app.js?v=2026-11-11"></script>
+</head>
+<body data-root="../">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="../index.html">Home</a></li>
+<li><a href="../curriculum.html">Curriculum</a></li>
+<li><a href="../paths.html">Learning paths</a></li>
+<li><a href="../glossary.html">Glossary & flashcards</a></li>
+<li><a href="../progress.html">Progress</a></li>
+<li><a href="../about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<div class="lesson-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol><li class=""><a href="#learning-objectives">Learning objectives</a></li><li class=""><a href="#why-this-matters">Why this matters</a></li><li class="green"><a href="#-core-idea-everyone"><span class="depth-dot green" aria-hidden="true"></span>Core idea (everyone)</a></li><li class="yellow"><a href="#-how-it-works-practitioner"><span class="depth-dot yellow" aria-hidden="true"></span>How it works (practitioner)</a></li><li class="red"><a href="#-going-deeper-expert"><span class="depth-dot red" aria-hidden="true"></span>Going deeper (expert)</a></li><li class=""><a href="#common-misconceptions">Common misconceptions</a></li><li class=""><a href="#hands-on-exercise">Hands-on exercise</a></li><li class=""><a href="#check-your-understanding">Check your understanding</a></li><li class=""><a href="#key-terms">Key terms</a></li><li class=""><a href="#further-reading">Further reading</a></li><li class=""><a href="#next">Next</a></li></ol>
+  </aside>
+  <article class="lesson" data-lesson="L0-02">
+    <p class="breadcrumb"><a href="../curriculum.html#level-0">Level 0</a> · Module 0A Orientation</p>
+    <h1>AI, ML, Deep Learning, Generative AI: The Nested Map</h1>
+    <div class="tldr"><strong>TL;DR</strong> The four terms describe nested fields, like a set of boxes inside boxes. AI is the whole field. Machine learning is the part of AI that learns from data. Deep learning is the part of machine learning that uses large neural networks. Today's generative AI is the part of deep learning that creates new content. Four yes/no questions tell you where any system belongs.</div>
+    <ul class="meta">
+      <li><span aria-hidden="true">⏱</span> 25 min</li>
+      <li>Prerequisites: <a href="L0-01.html">L0-01</a></li>
+      <li>Last reviewed: 2026-11-11</li>
+      <li><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/02-the-nested-map/README.md">View source on GitHub</a></li>
+    </ul>
+    <div class="depth-filter" role="group" aria-label="Reading depth">
+      <span class="depth-label">Reading depth:</span>
+      <button type="button" data-depth="green" aria-pressed="false"><span class="depth-dot green" aria-hidden="true"></span> Core</button>
+      <button type="button" data-depth="yellow" aria-pressed="false"><span class="depth-dot yellow" aria-hidden="true"></span> + Practitioner</button>
+      <button type="button" data-depth="red" aria-pressed="true"><span class="depth-dot red" aria-hidden="true"></span> + Expert</button>
+    </div>
+    <section class="lesson-section" id="learning-objectives"><h2>Learning objectives</h2><p>By the end you will be able to:</p>
+<ol>
+<li><strong>Explain</strong> how AI, machine learning, deep learning and generative AI relate to each other.</li>
+<li><strong>Classify</strong> a given system into the innermost category that fits, using four questions.</li>
+<li><strong>Define</strong> a neural network, a parameter and a foundation model in plain language.</li>
+<li><strong>Identify</strong> two places where the neat nested picture breaks down.</li>
+</ol>
+</section><section class="lesson-section" id="why-this-matters"><h2>Why this matters</h2><p>The four terms are used loosely, and often interchangeably, in news, marketing and even job
+descriptions. That causes real confusion. A team asks for &quot;AI&quot; when a few lines of conventional
+code would do. A risk review treats a rule-based tool like a large generative model, or the
+reverse. A clear map lets you ask the right questions: does this system learn from data? Could
+its output be new, and wrong? Each answer changes how you build, test and govern it.</p>
+</section><section class="lesson-section" id="-core-idea-everyone" data-depth="green"><h2>🟢 Core idea (everyone)</h2><h3 id="boxes-inside-boxes">Boxes inside boxes</h3>
+<p><img src="../img/curriculum/level-0-orientation/02-the-nested-map/diagrams/nested_map.png" alt="Four nested regions: artificial intelligence contains machine learning, which contains deep learning, which contains generative AI, each with a one-line definition and examples" /></p>
+<p><em>Each field is a part of the one around it: AI contains machine learning, which contains deep learning, which contains generative AI.</em></p>
+<p>Artificial intelligence (AI), which you met in L0-01, is the outermost box: any technique that makes a machine do
+something we'd call intelligent. That includes methods that learn nothing at all. A route
+planner that searches a road map for the shortest path is AI. So is a chess program that
+searches millions of moves using a scoring formula a person wrote. AI built from hand-written
+rules and logic is often called <strong>symbolic AI</strong>, or a <strong>rule-based system</strong>.</p>
+<p>If symbolic AI is built from hand-written rules, how is it different from the conventional
+software in L0-01? It isn't, in how it's built. What puts it inside AI is the <em>kind of task</em>:
+searching, planning, reasoning or conversing, rather than, say, adding up an invoice.</p>
+<p>Machine learning (ML) sits inside AI. Here the system's behaviour comes from data. You give
+it examples, and a learning method adjusts the system until it handles the examples well. When
+each example comes with the right answer (an email labelled &quot;spam&quot;), it's called <strong>supervised
+learning</strong>. When the system finds structure in data that has no answers attached, it's called
+<strong>unsupervised learning</strong>.</p>
+<p><strong>Deep learning</strong> sits inside machine learning. It uses <strong>neural networks</strong>: models built from
+many simple calculating units arranged in <strong>layers</strong>, where each layer transforms the output of
+the one before. &quot;Deep&quot; just means many layers. The numbers that a network adjusts during
+training are called its <strong>parameters</strong>. A small network might have thousands of them. A large
+language model has billions.</p>
+<p>Generative AI sits inside deep learning. These are deep learning models whose main job is
+creating content: text, images, audio, video or code. Many are <strong>foundation models</strong>: very large
+models trained on broad data that can then be adapted to many different tasks.</p>
+<h3 id="an-analogy-and-where-it-breaks">An analogy, and where it breaks</h3>
+<p>Think of nested geographic regions: a continent contains a country, which contains a province,
+which contains a city. Every city is in a province, but most of the province isn't the city.
+In the same way, every generative AI system is (today) a deep learning system, but most deep
+learning isn't generative. Face recognition and speech-to-text are deep learning that judges
+or transcribes rather than creates.</p>
+<p><strong>Where the analogy breaks down:</strong> borders between countries are fixed and agreed. Borders
+between these fields are fuzzy and partly a matter of convention. Some generative models are
+not deep learning at all. The toy word generator in L0-01 learns from data and creates new
+text, but it has no neural network. By the box diagram it should sit in &quot;machine learning&quot;,
+not &quot;generative AI&quot;, even though it generates. The 🔴 section returns to this.</p>
+<h3 id="four-questions-that-place-any-system">Four questions that place any system</h3>
+<p>Ask these in order, and stop at the first &quot;no&quot;:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>If &quot;no&quot;, the system is…</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Does it do a task we'd call intelligent (perceive, reason, plan, decide, create)?</td>
+<td>Not AI: conventional software</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Does its behaviour come from learning on data, not only from hand-written rules?</td>
+<td>AI, but not machine learning</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Does it use a neural network with many layers?</td>
+<td>Machine learning, but not deep learning</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Is its main output new content?</td>
+<td>Deep learning, but not generative</td>
+</tr>
+<tr>
+<td></td>
+<td>All four &quot;yes&quot;</td>
+<td>Generative AI</td>
+</tr>
+</tbody>
+</table>
+<h3 id="worked-examples">Worked examples</h3>
+<table>
+<thead>
+<tr>
+<th>System</th>
+<th>Q1</th>
+<th>Q2</th>
+<th>Q3</th>
+<th>Q4</th>
+<th>Where it sits</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Tax calculator applying fixed formulas</td>
+<td>no</td>
+<td></td>
+<td></td>
+<td></td>
+<td>Not AI</td>
+</tr>
+<tr>
+<td>Chess program with a hand-written scoring formula</td>
+<td>yes</td>
+<td>no</td>
+<td></td>
+<td></td>
+<td>AI, not ML</td>
+</tr>
+<tr>
+<td>Spam filter trained on labelled emails by counting words</td>
+<td>yes</td>
+<td>yes</td>
+<td>no</td>
+<td></td>
+<td>ML, not deep learning</td>
+</tr>
+<tr>
+<td>Photo app that recognizes faces with a deep network</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>no</td>
+<td>Deep learning, not generative</td>
+</tr>
+<tr>
+<td>Chat assistant built on a large language model</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+<td>Generative AI</td>
+</tr>
+</tbody>
+</table>
+<p>Question 1 is the vague one. Reasonable people disagree about where &quot;intelligent&quot; starts. A
+motion-sensor light that switches on when something moves makes a decision, but almost nobody
+calls it AI. When
+in doubt, questions 2–4 are the ones that matter in practice: they tell you how the system was
+built, and so how it can fail.</p>
+</section><section class="lesson-section" id="-how-it-works-practitioner" data-depth="yellow"><h2>🟡 How it works (practitioner)</h2><h3 id="the-four-questions-as-code">The four questions as code</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/02-the-nested-map/code/where_does_it_fit.py">code/where_does_it_fit.py</a> turns the table into a function. Each
+system is described by four booleans, and <code>place</code> walks inward through the map:</p>
+<pre><code class="language-python">def place(s: System) -&gt; str:
+    if not s.does_ai_task:
+        return &quot;Not AI: conventional software&quot;
+    if not s.learns_from_data:
+        return &quot;AI, but not machine learning&quot;
+    if not s.deep_network:
+        if s.generates:
+            return &quot;Machine learning: a simple generative model (not deep learning)&quot;
+        return &quot;Machine learning, but not deep learning&quot;
+    if s.generates:
+        return &quot;Generative AI (deep learning that creates content)&quot;
+    return &quot;Deep learning, but not generative&quot;
+</code></pre>
+<p>Run it from this lesson's folder with <code>python code/where_does_it_fit.py</code>:</p>
+<pre><code class="language-text">Tax calculator applying fixed formulas                   -&gt;  Not AI: conventional software
+Chess program searching moves with hand-written scoring  -&gt;  AI, but not machine learning
+Spam filter that counts words in labelled emails         -&gt;  Machine learning, but not deep learning
+Word-pair text generator (like L0-01's)                  -&gt;  Machine learning: a simple generative model (not deep learning)
+Photo app that recognizes faces with a deep network      -&gt;  Deep learning, but not generative
+Chat assistant built on a large language model           -&gt;  Generative AI (deep learning that creates content)
+Image generator that turns a description into a picture  -&gt;  Generative AI (deep learning that creates content)
+</code></pre>
+<p>Notice the fourth line. The code needed an extra branch for a system that generates but isn't
+deep learning, because the strict box diagram has no place for it.</p>
+<h3 id="what-actually-differs-between-the-boxes">What actually differs between the boxes</h3>
+<p>The labels matter less than what changes as you move inward:</p>
+<table>
+<thead>
+<tr>
+<th>Moving inward to…</th>
+<th>What you gain</th>
+<th>What you take on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Machine learning</td>
+<td>Handles patterns too complex to write as rules</td>
+<td>Behaviour depends on training data quality; failures are harder to predict</td>
+</tr>
+<tr>
+<td>Deep learning</td>
+<td>Learns directly from raw text, pixels and audio</td>
+<td>Needs much more data and computation; harder to explain why it decided something</td>
+</tr>
+<tr>
+<td>Generative AI</td>
+<td>Produces open-ended content, works across many tasks</td>
+<td>Output can be new <em>and</em> wrong; harder to test, because there's no single right answer</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-pitfalls">Common pitfalls</h3>
+<ul>
+<li><strong>Calling everything &quot;AI&quot;.</strong> Many products marketed as AI are mostly conventional software.
+Ask what is learned, from what data, and where.</li>
+<li><strong>Assuming deep learning is always better.</strong> For small, structured problems (a few columns in
+a spreadsheet), simpler machine learning often matches or beats deep learning, and is far
+easier to explain.</li>
+<li><strong>Assuming &quot;generative&quot; means &quot;deep&quot;.</strong> True for the systems in the news today, but not true
+by definition, as the word-pair generator shows.</li>
+</ul>
+</section><section class="lesson-section" id="-going-deeper-expert" data-depth="red"><h2>🔴 Going deeper (expert)</h2><h3 id="where-the-nested-map-breaks-down">Where the nested map breaks down</h3>
+<p><strong>1. Generative is a property, not a box.</strong> Formally, a generative model is one that models
+the data distribution <span class="math inline">p(x)</span> and can sample from it (L0-01). By that definition, generative
+models long predate deep learning. Andrey Markov analyzed sequences of vowels and consonants in
+Pushkin's novel in verse <em>Eugene Onegin</em> in 1913; Claude Shannon generated English-like text from letter and word statistics in 1948
+(L0-03 recreates it); hidden Markov models were the backbone of speech recognition for decades.
+&quot;Generative AI&quot; in today's usage means <em>deep</em> generative models, so the nested picture
+describes current usage, not a mathematical necessity.</p>
+<p><strong>2. Many systems are hybrids.</strong> A route planner might use learned traffic predictions (ML)
+inside a classic search algorithm (symbolic AI). A chat assistant combines a generative model
+with retrieval, rules and filters. Placing &quot;the system&quot; on the map is less useful than placing
+each component, because each component fails and is tested differently.</p>
+<p><strong>3. Learning paradigms cut across the boxes.</strong> Large language models are mostly trained with
+<strong>self-supervised learning</strong>: the labels come from the data itself (the &quot;answer&quot; for each
+position in a text is simply the next token). That doesn't fit the classic supervised versus
+unsupervised split. Post-training then adds supervised and reinforcement learning on top
+(L2-09, L7-07).</p>
+<h3 id="narrow-and-general-ai">Narrow and general AI</h3>
+<p>Most researchers would describe every AI system in use today (as of November 2026) as
+<strong>narrow AI</strong>: built and validated for particular ranges of tasks, even when that range is
+wide. Some argue that today's largest models already show meaningful generality, which is part of
+the debate below. <strong>Artificial general
+intelligence (AGI)</strong> usually refers to a hypothetical system that matches or exceeds people
+across essentially all cognitive tasks.</p>
+<blockquote>
+<p><strong>Open debate (as of November 2026):</strong> there is no agreed definition of AGI, no agreed test
+for it, and no consensus on whether or when it could be built. Claims in either direction are
+predictions, not established facts. This catalog teaches what current systems do and how to
+evaluate them, which stays useful whichever way that debate goes.</p>
+</blockquote>
+<h3 id="why-the-classification-matters-in-production">Why the classification matters in production</h3>
+<p>The map predicts the engineering and governance work a system needs:</p>
+<ul>
+<li><strong>Testing.</strong> Rule-based systems can be tested against their specification. Learned systems
+need held-out evaluation data. Generative systems need evaluation of open-ended output,
+which is still an active research area (Level 5, L7-11).</li>
+<li><strong>Explainability.</strong> You can read a rule. You can inspect a small model's learned weights.
+Explaining a deep network's individual decisions is much harder (L7-09, L7-10).</li>
+<li><strong>Risk.</strong> Frameworks such as the EU AI Act (adopted in 2024) regulate by <em>use</em> and <em>risk level</em> more than by
+technique, but the technique still determines which failure modes you must control (L6-11).</li>
+</ul>
+</section><section class="lesson-section" id="common-misconceptions"><h2>Common misconceptions</h2><ul>
+<li><strong>Myth:</strong> AI and machine learning are the same thing.
+<strong>Reality:</strong> Machine learning is one part of AI. Search, planning and rule-based reasoning are
+AI too, and they learn nothing.</li>
+<li><strong>Myth:</strong> Deep learning is a completely different field from machine learning.
+<strong>Reality:</strong> Deep learning is machine learning with large, many-layered neural networks.
+The core ideas (data, a model, training to reduce errors) are the same.</li>
+<li><strong>Myth:</strong> Generative AI can only produce text.
+<strong>Reality:</strong> Deep generative models also produce images, audio, video, code, 3-D shapes and
+more. L2-12 to L2-14 cover the main families.</li>
+<li><strong>Myth:</strong> Today's systems are general intelligences.
+<strong>Reality:</strong> They can be broadly capable and still fail on tasks a child finds easy. Whether
+general intelligence is near is an open debate, not a settled fact.</li>
+</ul>
+</section><section class="lesson-section" id="hands-on-exercise"><h2>Hands-on exercise</h2><p><strong>Goal:</strong> place six more systems on the map, and notice which questions are hard to answer.</p>
+<p>Open <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/02-the-nested-map/exercises/place_these.py">exercises/place_these.py</a>, replace every <code>None</code> with <code>True</code> or
+<code>False</code>, and run it. No coding? Answer the four questions on paper for each system:</p>
+<ol>
+<li>A thermostat that switches heating on below 19 °C</li>
+<li>A route planner that searches a road map for the shortest path</li>
+<li>Speech-to-text on a phone, using a deep network</li>
+<li>A music generator that composes new melodies with a deep network</li>
+<li>A house-price estimator fitted to past sales with a straight line</li>
+<li>A rule-based chatbot that fills in templates like &quot;Tell me more about X&quot;</li>
+</ol>
+<details>
+<summary>Solution</summary>
+<p>The full solution, with reasoning, is in
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/02-the-nested-map/exercises/solutions/place_these.py">exercises/solutions/place_these.py</a>:</p>
+<pre><code class="language-text">Thermostat          -&gt;  Not AI: conventional software
+Route planner       -&gt;  AI, but not machine learning
+Speech-to-text      -&gt;  Deep learning, but not generative
+Music generator     -&gt;  Generative AI (deep learning that creates content)
+House-price line    -&gt;  Machine learning, but not deep learning
+Rule-based chatbot  -&gt;  AI, but not machine learning
+</code></pre>
+<p>The two worth discussing: the <strong>rule-based chatbot</strong> produces text, but from hand-written
+templates, so it's symbolic AI rather than generative AI. The <strong>house-price line</strong> is simple,
+but fitting it to data <em>is</em> machine learning. &quot;Simple&quot; and &quot;learned&quot; are different questions.</p>
+</details>
+</section><section class="lesson-section" id="check-your-understanding"><h2>Check your understanding</h2><div class="quiz" data-lesson="L0-02" data-count="5"><ol class="questions"><li class="question" data-kind="single" data-answer="B"><div class="q-text">Which statement about the four fields is correct?</div><fieldset><legend class="visually-hidden">Options for question 1</legend><label class="option"><input type="radio" name="L0-02-q1" value="A"><span class="letter">A.</span> <span>All machine learning is deep learning</span></label><label class="option"><input type="radio" name="L0-02-q1" value="B"><span class="letter">B.</span> <span>All deep learning is machine learning</span></label><label class="option"><input type="radio" name="L0-02-q1" value="C"><span class="letter">C.</span> <span>All AI is machine learning</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> Deep learning is the part of machine learning that uses many-layered neural networks.
+A is backwards: much machine learning isn't deep. C is wrong because search, planning and
+rule-based systems are AI without learning.</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,B"><div class="q-text">A delivery company's system picks the order of stops using a classic search algorithm, with travel times predicted by a model trained on past trips. Where does it belong? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 2</legend><label class="option"><input type="checkbox" name="L0-02-q2" value="A"><span class="letter">A.</span> <span>It uses AI without machine learning (the search)</span></label><label class="option"><input type="checkbox" name="L0-02-q2" value="B"><span class="letter">B.</span> <span>It uses machine learning (the travel-time model)</span></label><label class="option"><input type="checkbox" name="L0-02-q2" value="C"><span class="letter">C.</span> <span>It is generative AI</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, B.</strong> It's a hybrid: a symbolic search component and a learned prediction component. It
+isn't generative, because its output is a choice of order, not new content. Placing each
+component on the map is more useful than placing the whole system.</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,C,D"><div class="q-text">Which statements are correct? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 3</legend><label class="option"><input type="checkbox" name="L0-02-q3" value="A"><span class="letter">A.</span> <span>A model's parameters are the numbers adjusted during training that determine its behaviour</span></label><label class="option"><input type="checkbox" name="L0-02-q3" value="B"><span class="letter">B.</span> <span>A model's parameters are the settings a user chooses before running it</span></label><label class="option"><input type="checkbox" name="L0-02-q3" value="C"><span class="letter">C.</span> <span>A foundation model is a very large model trained on broad data that can be adapted to many tasks</span></label><label class="option"><input type="checkbox" name="L0-02-q3" value="D"><span class="letter">D.</span> <span>In a neural network, each layer transforms the output of the layer before it</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, C, D.</strong> Parameters are the learned numbers (A). Settings chosen by people before training
+(B) are a different thing, often called hyperparameters. A foundation model (C) is defined by
+its size, broad training data and adaptability, not by any single task. Layers (D) are the
+structure that holds the parameters.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text">Why does the L0-01 word-pair generator not fit neatly into the box diagram?</div><label class="visually-hidden" for="L0-02-q4-text">Your answer</label><textarea id="L0-02-q4-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>It learns from data and creates new text, so it's a generative model, but it has no neural
+network, so it isn't deep learning. The box diagram puts all of generative AI inside deep
+learning, which matches how the term is used today, but generative models existed long
+before deep learning.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text"><strong>Explain it to a colleague:</strong> a manager asks, &quot;Is our new invoice-matching tool AI or machine learning?&quot; Explain how you'd find out, and why the answer matters.</div><label class="visually-hidden" for="L0-02-q5-text">Your answer</label><textarea id="L0-02-q5-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>Ask whether its behaviour comes from rules people wrote or from learning on past invoices,
+and whether it creates content or just matches and classifies. If it's rule-based, it can be
+tested directly against its rules. If it learned from data, its quality depends on that data,
+and it needs evaluation on examples it hasn't seen. The answer tells you how it can fail and
+how to test and govern it.</p>
+</div></li></ol><p class="quiz-score" aria-live="polite"></p></div></section><section class="lesson-section" id="key-terms"><h2>Key terms</h2><ul>
+<li><a href="../glossary.html#artificial-general-intelligence-agi">Artificial general intelligence (AGI)</a></li>
+<li><a href="../glossary.html#deep-learning">Deep learning</a></li>
+<li><a href="../glossary.html#foundation-model">Foundation model</a></li>
+<li><a href="../glossary.html#layer">Layer</a></li>
+<li><a href="../glossary.html#narrow-ai">Narrow AI</a></li>
+<li><a href="../glossary.html#neural-network">Neural network</a></li>
+<li><a href="../glossary.html#parameter">Parameter</a></li>
+<li><a href="../glossary.html#rule-based-system">Rule-based system</a></li>
+<li><a href="../glossary.html#self-supervised-learning">Self-supervised learning</a></li>
+<li><a href="../glossary.html#supervised-learning">Supervised learning</a></li>
+<li><a href="../glossary.html#symbolic-ai">Symbolic AI</a></li>
+<li><a href="../glossary.html#unsupervised-learning">Unsupervised learning</a></li>
+</ul>
+</section><section class="lesson-section" id="further-reading"><h2>Further reading</h2><ul>
+<li>🟢 <strong>Elements of AI, chapter 1</strong> — University of Helsinki and MinnaLearn. Explains the
+relationship between AI, machine learning and deep learning for a general audience.
+<a href="https://www.elementsofai.com/">https://www.elementsofai.com/</a></li>
+<li>🟡 <strong>Deep Learning</strong> — Ian Goodfellow, Yoshua Bengio and Aaron Courville (MIT Press, 2016).
+The introduction (chapter 1) gives the classic nested view and its history. Free to read online.
+<a href="https://www.deeplearningbook.org/">https://www.deeplearningbook.org/</a></li>
+<li>🔴 <strong>On the Opportunities and Risks of Foundation Models</strong> — Bommasani et al. (2021). Coined
+the term &quot;foundation model&quot; and discusses what makes these models different.
+<a href="https://arxiv.org/abs/2108.07258">https://arxiv.org/abs/2108.07258</a></li>
+</ul>
+</section><section class="lesson-section" id="next"><h2>Next</h2><ul>
+<li><strong>Next lesson:</strong> <a href="../lessons/L0-03.html">L0-03 A Short History: From Rules to Generative Models</a></li>
+<li><strong>Related:</strong> Level 1 builds neural networks from scratch. L2-12 compares the families of
+generative models, including ones that aren't language models.</li>
+</ul>
+</section>
+    <div class="complete-box">
+      <button type="button" class="btn primary mark-complete" data-lesson="L0-02">Mark lesson as complete</button>
+      <p class="complete-status" aria-live="polite"></p>
+    </div>
+    <nav class="pager" aria-label="Lesson navigation"><a class="pager-prev" href="L0-01.html" rel="prev"><small>Previous</small>L0-01 What Generative AI Is (and Isn&#x27;t)</a><a class="pager-next" href="L0-03.html" rel="next"><small>Next</small>L0-03 A Short History: From Rules to Generative Models</a></nav>
+  </article>
+</div>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="../about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>

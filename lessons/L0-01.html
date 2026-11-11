@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What Generative AI Is (and Isn&#x27;t) · Generative AI from First Principles</title>
+<meta name="description" content="Most software follows rules that people wrote. Machine learning systems work out their own rules from examples. Generative AI goes one step further: it learns the patterns in huge collections of text, images or sound, and uses them to produce new content that looks like the examples. It&#x27;s powerful, ">
+<link rel="stylesheet" href="../style.css?v=2026-11-11">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css">
+<script defer src="../vendor/katex/katex.min.js"></script>
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="../data.js?v=2026-11-11"></script>
+<script defer src="../app.js?v=2026-11-11"></script>
+</head>
+<body data-root="../">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="../index.html">Home</a></li>
+<li><a href="../curriculum.html">Curriculum</a></li>
+<li><a href="../paths.html">Learning paths</a></li>
+<li><a href="../glossary.html">Glossary & flashcards</a></li>
+<li><a href="../progress.html">Progress</a></li>
+<li><a href="../about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<div class="lesson-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol><li class=""><a href="#learning-objectives">Learning objectives</a></li><li class=""><a href="#why-this-matters">Why this matters</a></li><li class="green"><a href="#-core-idea-everyone"><span class="depth-dot green" aria-hidden="true"></span>Core idea (everyone)</a></li><li class="yellow"><a href="#-how-it-works-practitioner"><span class="depth-dot yellow" aria-hidden="true"></span>How it works (practitioner)</a></li><li class="red"><a href="#-going-deeper-expert"><span class="depth-dot red" aria-hidden="true"></span>Going deeper (expert)</a></li><li class=""><a href="#common-misconceptions">Common misconceptions</a></li><li class=""><a href="#hands-on-exercise">Hands-on exercise</a></li><li class=""><a href="#check-your-understanding">Check your understanding</a></li><li class=""><a href="#key-terms">Key terms</a></li><li class=""><a href="#further-reading">Further reading</a></li><li class=""><a href="#next">Next</a></li></ol>
+  </aside>
+  <article class="lesson" data-lesson="L0-01">
+    <p class="breadcrumb"><a href="../curriculum.html#level-0">Level 0</a> · Module 0A Orientation</p>
+    <h1>What Generative AI Is (and Isn&#x27;t)</h1>
+    <div class="tldr"><strong>TL;DR</strong> Most software follows rules that people wrote. Machine learning systems work out their own rules from examples. Generative AI goes one step further: it learns the patterns in huge collections of text, images or sound, and uses them to produce new content that looks like the examples. It's powerful, but it produces what is <em>likely</em>, not what is <em>verified</em>.</div>
+    <ul class="meta">
+      <li><span aria-hidden="true">⏱</span> 20 min</li>
+      <li>Prerequisites: none</li>
+      <li>Last reviewed: 2026-11-11</li>
+      <li><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/01-what-generative-ai-is/README.md">View source on GitHub</a></li>
+    </ul>
+    <div class="depth-filter" role="group" aria-label="Reading depth">
+      <span class="depth-label">Reading depth:</span>
+      <button type="button" data-depth="green" aria-pressed="false"><span class="depth-dot green" aria-hidden="true"></span> Core</button>
+      <button type="button" data-depth="yellow" aria-pressed="false"><span class="depth-dot yellow" aria-hidden="true"></span> + Practitioner</button>
+      <button type="button" data-depth="red" aria-pressed="true"><span class="depth-dot red" aria-hidden="true"></span> + Expert</button>
+    </div>
+    <section class="lesson-section" id="learning-objectives"><h2>Learning objectives</h2><p>By the end you will be able to:</p>
+<ol>
+<li><strong>Explain</strong> the difference between conventional software, machine learning and generative AI.</li>
+<li><strong>Identify</strong> whether a given tool is generating new content or classifying existing data.</li>
+<li><strong>Describe</strong>, in one sentence, how a generative model produces its output.</li>
+<li><strong>Recognize</strong> two things generative AI is often mistaken for: a search engine and a source of verified facts.</li>
+</ol>
+</section><section class="lesson-section" id="why-this-matters"><h2>Why this matters</h2><p>Generative AI is now built into tools that millions of people use to write, search, code and
+make decisions. People who misunderstand what it is tend to make one of two mistakes. Some trust
+it like a calculator, and repeat its confident errors. Others dismiss it as autocomplete, and
+miss what it does well. A clear picture of what it actually does, and doesn't do, is the
+foundation for everything else in this catalog.</p>
+</section><section class="lesson-section" id="-core-idea-everyone" data-depth="green"><h2>🟢 Core idea (everyone)</h2><h3 id="three-ways-to-get-an-answer-from-a-computer">Three ways to get an answer from a computer</h3>
+<p>Imagine you want a computer to sort email into &quot;spam&quot; and &quot;not spam&quot;. There are three broad
+ways to get there, and they map onto the three ideas in this lesson.</p>
+<p><strong>1. Write the rules yourself.</strong> You decide: &quot;if a message contains the word <em>prize</em>, it's
+spam.&quot; That's <strong>conventional software</strong>: a program that follows instructions a person wrote,
+step by step. It does exactly what it's told, which is both its strength and its weakness.
+Spammers soon learn to write &quot;pr1ze&quot;.</p>
+<p><strong>2. Let the computer find the rules.</strong> You collect thousands of emails that people have
+already labelled &quot;spam&quot; or &quot;not spam&quot;, and let the computer work out which patterns separate
+them. That's <strong>machine learning (ML)</strong>: instead of writing the rules, you provide examples and a
+learning method, and the computer adjusts itself until it gets the examples right. The result
+of that process is called a <strong>model</strong>: a file of learned numbers that turns inputs into outputs.
+The process of adjusting it is called <strong>training</strong>, and the examples are the <strong>training data</strong>.</p>
+<p><strong>3. Let the computer write new email.</strong> Now flip the question. Instead of asking &quot;is this
+email spam?&quot;, you ask &quot;write a polite reply to this email.&quot; No list of right answers exists,
+because there are endless good replies. A <strong>generative AI</strong> system learns the patterns in a
+very large collection of text, then produces <em>new</em> text that follows those patterns. The
+instruction or question you give it is called a <strong>prompt</strong>.</p>
+<p><img src="../img/curriculum/level-0-orientation/01-what-generative-ai-is/diagrams/three_ways.png" alt="Three rows comparing conventional software (rules plus data go into a program that produces answers), machine learning (labelled examples go into learning, which produces a model), and generative AI (a prompt goes into a generative model, which produces new content)" /></p>
+<p><em>Conventional software follows written rules, machine learning learns rules from examples, and generative AI uses learned patterns to create new content.</em></p>
+<h3 id="what-generative-really-means">What &quot;generative&quot; really means</h3>
+<p><strong>Artificial intelligence (AI)</strong> is the broad field of making machines do tasks we'd call
+intelligent: recognizing speech, planning a route, playing chess, answering questions. There
+is no single agreed definition. A widely used one, from the OECD, describes an AI system as a
+machine-based system that infers, from the input it receives, how to produce outputs such as
+predictions, content, recommendations or decisions.</p>
+<p>Generative AI is the part of AI whose main output is <em>content</em>: text, images, audio, video or
+code. Most deployed AI before the mid-2010s was about <em>judging</em> things: is this spam, is this a cat, will
+this customer leave? Generative AI <em>makes</em> things.</p>
+<p>Chat assistants, the systems you've probably heard of, are built on a <strong>language model</strong>: a
+model trained to continue text. A <strong>large language model (LLM)</strong> is one trained on an enormous
+amount of text, with billions of learned numbers. You'll meet both terms throughout the catalog.</p>
+<h3 id="how-it-produces-text-in-one-sentence">How it produces text, in one sentence</h3>
+<blockquote>
+<p>A language model writes by repeatedly predicting a likely next piece of text, given
+everything written so far.</p>
+</blockquote>
+<p>That's it. When you ask &quot;What's the capital of Canada?&quot;, the model doesn't look the answer up.
+It produces the words that most plausibly follow your question, based on patterns in its
+training data. Because &quot;Ottawa&quot; followed questions like that many times in its training data,
+it's very likely to say &quot;Ottawa&quot;.</p>
+<p><strong>An analogy.</strong> Think of a musician who has listened to thousands of jazz recordings and now
+improvises. They don't replay a recording. They produce new music that <em>sounds right</em> because
+they've absorbed the patterns.</p>
+<p><strong>Where the analogy breaks down:</strong> the musician knows what a song is, can hear their own
+mistakes, and can decide to break a rule on purpose. A generative model has no ears, no
+intentions and no built-in sense of right and wrong. It produces what is statistically
+plausible, and plausible isn't the same as true.</p>
+<h3 id="a-worked-example-with-real-numbers">A worked example with real numbers</h3>
+<p>The code for this lesson builds a toy generator from just five sentences about the fictional
+town of Brindlewick:</p>
+<table>
+<thead>
+<tr>
+<th>Training sentence</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>the library opens at nine</td>
+</tr>
+<tr>
+<td>the market opens on saturday</td>
+</tr>
+<tr>
+<td>the library closes at six</td>
+</tr>
+<tr>
+<td>the ferry leaves at nine</td>
+</tr>
+<tr>
+<td>the market closes at noon</td>
+</tr>
+</tbody>
+</table>
+<p>The generator only records which word followed which. After &quot;library&quot;, it saw &quot;opens&quot; once and
+&quot;closes&quot; once, so it picks each with a probability of 1/2. After &quot;at&quot;, it saw &quot;nine&quot; twice,
+&quot;six&quot; once and &quot;noon&quot; once, so it picks &quot;nine&quot; with a probability of 2/4 = 0.5.</p>
+<p>Asked to write five different sentences, it produced:</p>
+<table>
+<thead>
+<tr>
+<th>Generated sentence</th>
+<th>In the training data?</th>
+<th>True in Brindlewick?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>the library closes at nine</td>
+<td><strong>no, new</strong></td>
+<td><strong>no</strong>: it closes at six</td>
+</tr>
+<tr>
+<td>the market closes at nine</td>
+<td><strong>no, new</strong></td>
+<td><strong>no</strong>: it closes at noon</td>
+</tr>
+<tr>
+<td>the ferry leaves at nine</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>the market closes at noon</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr>
+<td>the library closes at noon</td>
+<td><strong>no, new</strong></td>
+<td><strong>no</strong>: it closes at six</td>
+</tr>
+</tbody>
+</table>
+<p>Every sentence is fluent. Three are new combinations nobody wrote, and all three are false.
+That's generative AI in miniature: it creates new content by recombining learned patterns, and
+nothing in that process checks the result against reality. Real models are vastly better at
+this, but the basic mechanism, and the basic risk, are the same.</p>
+<h3 id="what-generative-ai-isnt">What generative AI isn't</h3>
+<ul>
+<li><strong>It isn't a search engine.</strong> A search engine finds existing documents and shows you where
+they came from. A generative model produces new text from learned patterns. Some products
+combine the two (Level 3 covers how), but the model itself doesn't look things up.</li>
+<li><strong>It isn't a database of facts.</strong> It doesn't store &quot;Ottawa is the capital of Canada&quot; as a
+record you can check. Facts are smeared across its learned numbers as patterns, which is why
+it can get common facts right and rare ones confidently wrong.</li>
+<li><strong>It isn't a mind.</strong> Whether these systems &quot;understand&quot; anything is an open question
+(this lesson's 🔴 section and Level 7 return to it), but they don't have goals, experiences or intentions in the way people
+do. Fluent language makes it very easy to forget that.</li>
+<li><strong>It isn't magic.</strong> Everything it does comes from data, mathematics and a lot of computation.
+By the end of Level 2 you'll have built a small one yourself.</li>
+</ul>
+</section><section class="lesson-section" id="-how-it-works-practitioner" data-depth="yellow"><h2>🟡 How it works (practitioner)</h2><h3 id="the-three-approaches-in-code">The three approaches in code</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/01-what-generative-ai-is/code/three_ways.py">code/three_ways.py</a> implements all three approaches in about 120 lines of
+plain Python, using only the standard library. Run it from this lesson's folder:</p>
+<pre><code class="language-bash">python code/three_ways.py
+</code></pre>
+<pre><code class="language-text">1. Rules written by a person
+   'free prize meeting'        -&gt; spam
+   'team lunch moved'          -&gt; ok
+   'click to claim money'      -&gt; ok
+2. Rules learned from 6 labelled examples
+   'free prize meeting'        -&gt; spam
+   'team lunch moved'          -&gt; ok
+   'click to claim money'      -&gt; spam
+3. New text generated from 5 example sentences
+   the library closes at nine   (new)
+   the market closes at nine   (new)
+   the ferry leaves at nine
+   the market closes at noon
+   the library closes at noon   (new)
+</code></pre>
+<p>Walk through what each part does:</p>
+<ol>
+<li><strong>Rules.</strong> <code>rule_based_filter</code> checks for two hard-coded words. It misses &quot;click to claim
+money&quot;, because nobody wrote a rule for &quot;claim&quot; or &quot;money&quot;.</li>
+<li><strong>Learning.</strong> <code>learn_word_counts</code> counts how often each word appears in spam and in normal
+messages. <code>learned_filter</code> adds up, for each word, its spam count minus its normal count. It catches &quot;click to claim money&quot;, because
+&quot;click&quot;, &quot;claim&quot; and &quot;money&quot; all appeared in the spam examples. Nobody wrote that rule. It
+came from the data.</li>
+<li><strong>Generation.</strong> <code>learn_next_words</code> records, for every word, the list of words that followed
+it. <code>generate</code> starts at a special <code>&lt;start&gt;</code> marker and repeatedly picks a random next word
+from that list until it reaches <code>&lt;end&gt;</code>. Words that followed more often appear more often in
+the list, so they're more likely to be picked.</li>
+</ol>
+<p>The key lines of the generator:</p>
+<pre><code class="language-python">def generate(follows, rng, max_words=10):
+    word, out = &quot;&lt;start&gt;&quot;, []
+    while len(out) &lt; max_words:
+        word = rng.choice(follows[word])   # pick a plausible next word
+        if word == &quot;&lt;end&gt;&quot;:
+            break
+        out.append(word)
+    return &quot; &quot;.join(out)
+</code></pre>
+<p>Notice that the generator has no concept of a &quot;sentence being true&quot;. It only knows &quot;what can
+follow what&quot;. Large language models are enormously more sophisticated: they look at much more
+than the previous word, and they learn rich representations of meaning. But the outer loop,
+<strong>predict the next piece, append it, repeat</strong>, is the same one you just read.</p>
+<h3 id="common-pitfalls">Common pitfalls</h3>
+<ul>
+<li><strong>Treating fluency as accuracy.</strong> Grammatical, confident text is what these systems are
+<em>built</em> to produce. It's not evidence that the content is correct.</li>
+<li><strong>Assuming the same prompt gives the same answer.</strong> Generation usually involves random
+choices (here, <code>rng.choice</code>). This example fixes the random seed so its output repeats
+exactly, but most real systems vary their answers unless configured not to.</li>
+<li><strong>Confusing the model with the product.</strong> A chat product may add search, tools, filters and
+memory around the model. When it cites a source, that came from the product's retrieval step,
+not from the model's memory. Level 3 builds exactly this.</li>
+</ul>
+</section><section class="lesson-section" id="-going-deeper-expert" data-depth="red"><h2>🔴 Going deeper (expert)</h2><h3 id="discriminative-vs-generative-formally">Discriminative vs generative, formally</h3>
+<p>Classifiers and generators differ in what probability they model. Write <span class="math inline">x</span> for an input (an
+email) and <span class="math inline">y</span> for a label (&quot;spam&quot;).</p>
+<ul>
+<li>A <strong>discriminative</strong> model learns <span class="math inline">p(y \mid x)</span>: the probability of each label, given the
+input. It answers &quot;which category?&quot;.</li>
+<li>A <strong>generative</strong> model learns <span class="math inline">p(x)</span>, or <span class="math inline">p(x \mid c)</span> for some condition <span class="math inline">c</span> such as a
+prompt: a <strong>probability distribution</strong> over the data itself. Once you have that, you can
+<strong>sample</strong> from it, which means drawing new examples that are likely under the distribution.</li>
+</ul>
+<p>Language models split text into pieces called <strong>tokens</strong>: whole words, parts of words or
+single characters, depending on the model (L2-01 builds a tokenizer). A language model factorizes
+the probability of a whole text <span class="math inline">x = (x_1, \dots, x_T)</span> of <span class="math inline">T</span> tokens into one next-token
+prediction at a time, using the chain rule of probability:</p>
+<div class="math block">
+p(x_1, \dots, x_T) = \prod_{t=1}^{T} p(x_t \mid x_1, \dots, x_{t-1})
+</div>
+<p>In words: the probability of a whole sentence is the probability of its first word, times the
+probability of the second word given the first, and so on. Generation samples <span class="math inline">x_1</span>, then
+<span class="math inline">x_2</span> given <span class="math inline">x_1</span>, and so on. The toy in this lesson makes a drastic simplification called a
+<strong>bigram</strong> assumption: <span class="math inline">p(x_t \mid x_1, \dots, x_{t-1}) \approx p(x_t \mid x_{t-1})</span>. It looks
+back one word. Large language models condition on many thousands of previous tokens, and
+(as of November 2026) some systems on over a million.</p>
+<h3 id="why-plausible-but-false-is-structural-not-a-bug">Why &quot;plausible but false&quot; is structural, not a bug</h3>
+<p>The training objective rewards assigning high probability to text that <em>looks like the
+training data</em>. Nothing in that objective directly rewards truth. A sentence like &quot;the library
+closes at nine&quot; gets a reasonable probability because every local step in it is common. Larger
+models capture longer-range structure, so they make this kind of error far less often, but the
+objective still contains no explicit truth signal. Later techniques (post-training in L2-09,
+retrieval in Level 3, verification in Levels 4–5) are, in large part, ways of adding one.</p>
+<h3 id="the-boundary-is-blurry-in-practice">The boundary is blurry in practice</h3>
+<p>Real systems mix the three approaches. A modern chat product might use a generative model to
+draft an answer, a discriminative classifier to filter unsafe content, and plain conventional
+code to call a calendar or run a calculation. Many valuable &quot;AI features&quot; are mostly
+conventional software with a model at one or two steps. Seeing which parts are which is a core
+skill for evaluating, securing and debugging these systems.</p>
+<blockquote>
+<p><strong>Open question (as of November 2026):</strong> whether next-token prediction at large scale yields
+something that deserves the word &quot;understanding&quot; is actively debated by researchers. Models
+clearly build internal representations that go beyond surface word statistics (Level 7 looks
+at the evidence), but how far that goes is unresolved.</p>
+</blockquote>
+</section><section class="lesson-section" id="common-misconceptions"><h2>Common misconceptions</h2><ul>
+<li><strong>Myth:</strong> Generative AI looks answers up in a big database.
+<strong>Reality:</strong> A model produces text from learned patterns. Products sometimes add a search
+step, but the model itself doesn't consult a source.</li>
+<li><strong>Myth:</strong> If the answer is detailed and confident, it's probably right.
+<strong>Reality:</strong> Detail and confidence come from the patterns of fluent text, not from checking
+facts. Confident errors are a normal failure mode.</li>
+<li><strong>Myth:</strong> Generative AI is just copying and pasting from its training data.
+<strong>Reality:</strong> It mostly produces new combinations, as the toy example shows. It <em>can</em> reproduce
+memorized passages, especially text it saw many times (L0-03's exercise shows this).</li>
+<li><strong>Myth:</strong> All AI is generative AI.
+<strong>Reality:</strong> Most deployed AI still classifies, ranks, forecasts or detects. Generative AI is
+one fast-growing part of the field.</li>
+</ul>
+</section><section class="lesson-section" id="hands-on-exercise"><h2>Hands-on exercise</h2><p><strong>Goal:</strong> measure how often the toy generator writes something new, and see what happens when
+you give it more training sentences.</p>
+<p>Open <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/01-what-generative-ai-is/exercises/new_or_copied.py">exercises/new_or_copied.py</a>, complete the two TODOs, and run
+it. Then add three sentences of your own and run it again. No coding? Do it by hand instead:
+generate ten sentences with a die, using the &quot;what followed what&quot; lists, and tally how many are
+new.</p>
+<details>
+<summary>Solution</summary>
+<p>The complete solution is in
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-0-orientation/01-what-generative-ai-is/exercises/solutions/new_or_copied.py">exercises/solutions/new_or_copied.py</a>. Out of 200
+generated sentences:</p>
+<pre><code class="language-text">5 training sentences: 69 copies, 131 new (66% new)
+8 training sentences: 39 copies, 161 new (80% new)
+</code></pre>
+<p>Two thirds of the output is already new with only five sentences. Adding sentences gives each
+word more possible successors, so the share of new combinations rises. For a model that looks back only one word, more data means more recombinations, and each one is
+a fresh chance to say something untrue. Larger models look much further back, which helps a
+great deal, but (as the 🔴 section explains) nothing in the training objective checks truth.</p>
+</details>
+</section><section class="lesson-section" id="check-your-understanding"><h2>Check your understanding</h2><div class="quiz" data-lesson="L0-01" data-count="5"><ol class="questions"><li class="question" data-kind="single" data-answer="A"><div class="q-text">A program flags a bank transaction as suspicious because it's over a limit that an analyst typed into a settings file. Which approach is this?</div><fieldset><legend class="visually-hidden">Options for question 1</legend><label class="option"><input type="radio" name="L0-01-q1" value="A"><span class="letter">A.</span> <span>Conventional software</span></label><label class="option"><input type="radio" name="L0-01-q1" value="B"><span class="letter">B.</span> <span>Machine learning</span></label><label class="option"><input type="radio" name="L0-01-q1" value="C"><span class="letter">C.</span> <span>Generative AI</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A.</strong> A person wrote the rule (the limit). Nothing was learned from examples, and nothing new
+is being created. If the system had <em>learned</em> which transactions look suspicious from past
+fraud cases, it would be machine learning.</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,C"><div class="q-text">Which of these are generative tasks? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 2</legend><label class="option"><input type="checkbox" name="L0-01-q2" value="A"><span class="letter">A.</span> <span>Writing a first draft of a cover letter</span></label><label class="option"><input type="checkbox" name="L0-01-q2" value="B"><span class="letter">B.</span> <span>Detecting whether a photo contains a dog</span></label><label class="option"><input type="checkbox" name="L0-01-q2" value="C"><span class="letter">C.</span> <span>Producing an image from the description &quot;a lighthouse at dusk&quot;</span></label><label class="option"><input type="checkbox" name="L0-01-q2" value="D"><span class="letter">D.</span> <span>Predicting tomorrow's electricity demand as a single number</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, C.</strong> Both create new content. B is classification (choosing a label), and D is
+forecasting (predicting one number). Both B and D are machine learning, but neither is
+generative.</p>
+</div></li><li class="question" data-kind="single" data-answer="B"><div class="q-text">In the worked example, the generator wrote &quot;the library closes at nine&quot;. Why?</div><fieldset><legend class="visually-hidden">Options for question 3</legend><label class="option"><input type="radio" name="L0-01-q3" value="A"><span class="letter">A.</span> <span>It found that sentence in its training data</span></label><label class="option"><input type="radio" name="L0-01-q3" value="B"><span class="letter">B.</span> <span>Every word-to-word step in it appeared in the training data, but the combination didn't</span></label><label class="option"><input type="radio" name="L0-01-q3" value="C"><span class="letter">C.</span> <span>It looked the sentence up in a list of facts about Brindlewick</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> &quot;library closes&quot; and &quot;closes at&quot; and &quot;at nine&quot; each appeared in true sentences. The
+generator chains likely steps without checking whether the whole claim is true. It didn't
+copy it (A), and it didn't look anything up (C): a generator has no list of facts to consult.
+That's the key difference from a search engine.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text">A friend says: &quot;I asked a chat assistant for a quote from a famous speech, and it gave me a perfect-sounding one, so it must be real.&quot; What would you tell them?</div><label class="visually-hidden" for="L0-01-q4-text">Your answer</label><textarea id="L0-01-q4-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>A perfect-sounding quote is exactly what a generative model is designed to produce, whether
+or not the quote exists. The model predicts plausible text; it doesn't retrieve verified
+records. Check the quote against a reliable source, such as a transcript of the speech,
+before using it.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text"><strong>Explain it to a colleague:</strong> in two or three sentences, explain how a language model produces an answer, and why that means it can be wrong while sounding right.</div><label class="visually-hidden" for="L0-01-q5-text">Your answer</label><textarea id="L0-01-q5-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>A language model writes its answer one piece at a time, each time choosing a likely next
+piece of text given everything so far, based on patterns learned from a huge amount of
+training text. It's optimized to produce text that looks like its training data, not to
+check facts. So it can produce a fluent, confident answer that is simply a plausible
+combination rather than a verified truth.</p>
+</div></li></ol><p class="quiz-score" aria-live="polite"></p></div></section><section class="lesson-section" id="key-terms"><h2>Key terms</h2><ul>
+<li><a href="../glossary.html#artificial-intelligence-ai">Artificial intelligence (AI)</a></li>
+<li><a href="../glossary.html#bigram">Bigram</a></li>
+<li><a href="../glossary.html#conventional-software">Conventional software</a></li>
+<li><a href="../glossary.html#discriminative-model">Discriminative model</a></li>
+<li><a href="../glossary.html#generative-ai">Generative AI</a></li>
+<li><a href="../glossary.html#generative-model">Generative model</a></li>
+<li><a href="../glossary.html#language-model">Language model</a></li>
+<li><a href="../glossary.html#large-language-model-llm">Large language model (LLM)</a></li>
+<li><a href="../glossary.html#machine-learning-ml">Machine learning (ML)</a></li>
+<li><a href="../glossary.html#model">Model</a></li>
+<li><a href="../glossary.html#probability-distribution">Probability distribution</a></li>
+<li><a href="../glossary.html#prompt">Prompt</a></li>
+<li><a href="../glossary.html#sampling">Sampling</a></li>
+<li><a href="../glossary.html#token">Token</a></li>
+<li><a href="../glossary.html#training">Training</a></li>
+<li><a href="../glossary.html#training-data">Training data</a></li>
+</ul>
+</section><section class="lesson-section" id="further-reading"><h2>Further reading</h2><ul>
+<li>🟢 <strong>Elements of AI</strong> — University of Helsinki and MinnaLearn. A free online course for
+non-specialists. Its first chapters cover &quot;what is AI?&quot; with a careful, hype-free approach.
+<a href="https://www.elementsofai.com/">https://www.elementsofai.com/</a></li>
+<li>🟢 <strong>Recommendation of the Council on Artificial Intelligence</strong> — OECD (2019, definition
+revised 2023). The source of the widely used definition of an &quot;AI system&quot; paraphrased above.
+<a href="https://legalinstruments.oecd.org/en/instruments/OECD-LEGAL-0449">https://legalinstruments.oecd.org/en/instruments/OECD-LEGAL-0449</a></li>
+<li>🟡 <strong>Artificial Intelligence: A Modern Approach</strong> — Stuart Russell and Peter Norvig (4th ed., 2020).
+The standard university textbook. Chapter 1 surveys the many definitions of AI.</li>
+<li>🔴 <strong>On the Opportunities and Risks of Foundation Models</strong> — Bommasani et al. (2021). A long
+report from Stanford on large pretrained models, their capabilities and risks.
+<a href="https://arxiv.org/abs/2108.07258">https://arxiv.org/abs/2108.07258</a></li>
+</ul>
+</section><section class="lesson-section" id="next"><h2>Next</h2><ul>
+<li><strong>Next lesson:</strong> <a href="../lessons/L0-02.html">L0-02 AI, ML, Deep Learning, Generative AI: The Nested Map</a></li>
+<li><strong>Related:</strong> <a href="../lessons/L0-04.html">L0-04 Capabilities, Limits and Responsible Use</a>
+goes deeper into &quot;plausible but false&quot;. L2-10 shows how real models choose the next token.</li>
+</ul>
+</section>
+    <div class="complete-box">
+      <button type="button" class="btn primary mark-complete" data-lesson="L0-01">Mark lesson as complete</button>
+      <p class="complete-status" aria-live="polite"></p>
+    </div>
+    <nav class="pager" aria-label="Lesson navigation"><span></span><a class="pager-next" href="L0-02.html" rel="next"><small>Next</small>L0-02 AI, ML, Deep Learning, Generative AI: The Nested Map</a></nav>
+  </article>
+</div>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="../about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>
