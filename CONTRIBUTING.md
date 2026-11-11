@@ -121,13 +121,71 @@ last_reviewed: 2026-11-09
 ## 🔴 Going deeper (expert)
 ## Common misconceptions          (3–5 "Myth / Reality" pairs)
 ## Hands-on exercise              (solution in a collapsed <details> block and in exercises/solutions/)
-## Check your understanding       (5 questions, one "explain it to a colleague"; answers collapsed)
+## Check your understanding       (5 questions in the quiz format below)
 ## Key terms                      (each linked to GLOSSARY.md)
 ## Further reading                (3–6 vetted sources, each with 🟢/🟡/🔴 and a one-line note)
 ## Next
 ```
 
 Published lessons are the best examples to copy from.
+
+### Quiz format
+
+"Check your understanding" has exactly 5 questions, and each question has its own collapsed
+answer. This format reads naturally on GitHub, never shows an answer before the reader asks for
+it, and lets the catalog's learning site turn each question into an interactive quiz.
+
+```markdown
+1. Which of these is a generative task?
+
+   - A. Labelling an email as spam
+   - B. Writing a reply to an email
+   - C. Sorting photos by date
+
+   <details>
+   <summary>Answer</summary>
+
+   **B.** Writing a reply creates new content. A and C assign labels or an order to
+   existing data.
+
+   </details>
+
+2. Which of these are limits of language models? *(choose all that apply)*
+
+   - A. They can state false things fluently
+   - B. They can't produce text
+   - C. Their knowledge stops at a training cutoff
+
+   <details>
+   <summary>Answer</summary>
+
+   **A, C.** …
+
+   </details>
+
+3. **Explain it to a colleague:** why does a language model sometimes make things up?
+
+   <details>
+   <summary>Model answer</summary>
+
+   …
+
+   </details>
+```
+
+| Question type | How to write it |
+|---|---|
+| Single choice | Options `- A.`, `- B.`… in order. Summary `Answer`. The answer starts with the bold letter: `**B.**` |
+| Multiple choice | Add *(choose all that apply)* to the question. The answer starts with the bold letters: `**A, C.**` |
+| Open | No options. Summary `Model answer` |
+
+Rules:
+
+- Include exactly one open **Explain it to a colleague** question. Mix the rest between recall
+  and application.
+- After the letters, always explain *why* the answer is right, and why the tempting wrong
+  options are wrong.
+- Test the lesson's learning objectives, not trivia.
 
 ### Layered depth
 
