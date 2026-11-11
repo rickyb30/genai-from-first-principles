@@ -1,0 +1,4 @@
+# Normalize text files to LF in the repository; mark binaries explicitly.
+* text=auto eol=lf
+*.png binary
+*.npz binary

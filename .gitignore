@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Tooling
+node_modules/
+
+# Scratch output from examples (anything a lesson needs is committed next to its script)
+*.tmp
+output/
+
+# OS and editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
