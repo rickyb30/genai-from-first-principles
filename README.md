@@ -4,8 +4,12 @@ An open, vendor-neutral learning catalog that takes you from no AI knowledge to 
 understanding of **generative AI**: how it works, how to build with it, and how to run,
 secure and govern it.
 
-> **Status: under construction.** The structure and tooling are in place, and lessons are being
-> written one module at a time. See [CURRICULUM.md](CURRICULUM.md) for progress.
+**Read it on the learning site: <https://rickyb30.github.io/genai-from-first-principles/>**.
+The site has interactive quizzes, flashcards with spaced repetition, a reading-depth switch and
+progress tracking. It has no accounts or tracking, and your progress stays in your browser.
+
+> **Status: under construction.** New modules are released one at a time. See
+> [CURRICULUM.md](CURRICULUM.md) for what's available and what's coming.
 
 ## Who this is for
 
@@ -59,6 +63,8 @@ The full lesson list is in [CURRICULUM.md](CURRICULUM.md).
 2. **Pick a route for your role** in [LEARNING_PATHS.md](LEARNING_PATHS.md): business leader,
    software developer, data professional, architect or platform engineer, or security and risk professional.
 3. **Look up any term** in the [GLOSSARY.md](GLOSSARY.md).
+4. **Prefer a guided experience?** Use the [learning site](https://rickyb30.github.io/genai-from-first-principles/),
+   which tracks your progress and turns the glossary into flashcards.
 
 ## Running the code
 
