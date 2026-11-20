@@ -22,12 +22,12 @@ Each lesson links to its page. Status is tracked in
 
 | ID | Lesson | Time | Status |
 |---|---|---|---|
-| L0-01 | [What Generative AI Is (and Isn't)](01-what-generative-ai-is/README.md) | 20 min | reviewed |
-| L0-02 | [AI, ML, Deep Learning, Generative AI: The Nested Map](02-the-nested-map/README.md) | 25 min | reviewed |
-| L0-03 | [A Short History: From Rules to Generative Models](03-a-short-history/README.md) | 30 min | reviewed |
-| L0-04 | [Capabilities, Limits and Responsible Use: A First Look](04-capabilities-limits-responsible-use/README.md) | 25 min | reviewed |
-| L0-05 | [How to Use This Catalog](05-how-to-use-this-catalog/README.md) | 25 min | reviewed |
-| L0-06 | [Your Toolkit: Running the Code Examples](06-your-toolkit/README.md) | 30 min | reviewed |
+| L0-01 | [What Generative AI Is (and Isn't)](01-what-generative-ai-is/README.md) | 20 min | published |
+| L0-02 | [AI, ML, Deep Learning, Generative AI: The Nested Map](02-the-nested-map/README.md) | 25 min | published |
+| L0-03 | [A Short History: From Rules to Generative Models](03-a-short-history/README.md) | 30 min | published |
+| L0-04 | [Capabilities, Limits and Responsible Use: A First Look](04-capabilities-limits-responsible-use/README.md) | 25 min | published |
+| L0-05 | [How to Use This Catalog](05-how-to-use-this-catalog/README.md) | 25 min | published |
+| L0-06 | [Your Toolkit: Running the Code Examples](06-your-toolkit/README.md) | 30 min | published |
 
 ## Setup
 
