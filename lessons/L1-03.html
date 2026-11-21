@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Information Basics: Entropy, Cross-Entropy, Perplexity, KL · Generative AI from First Principles</title>
+<meta name="description" content="Surprise can be measured: an outcome you gave probability $p$ costs $-\log2 p$ bits when it happens. Entropy is how surprised you expect to be when your probabilities are right. Cross-entropy is how surprised you actually are when you use a model&#x27;s probabilities. The gap between them is the KL diver">
+<link rel="stylesheet" href="../style.css?v=2026-11-20">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css">
+<script defer src="../vendor/katex/katex.min.js"></script>
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="../data.js?v=2026-11-20"></script>
+<script defer src="../app.js?v=2026-11-20"></script>
+</head>
+<body data-root="../">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="../index.html">Home</a></li>
+<li><a href="../curriculum.html">Curriculum</a></li>
+<li><a href="../paths.html">Learning paths</a></li>
+<li><a href="../glossary.html">Glossary & flashcards</a></li>
+<li><a href="../progress.html">Progress</a></li>
+<li><a href="../about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<div class="lesson-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol><li class=""><a href="#learning-objectives">Learning objectives</a></li><li class=""><a href="#why-this-matters">Why this matters</a></li><li class="green"><a href="#-core-idea-everyone"><span class="depth-dot green" aria-hidden="true"></span>Core idea (everyone)</a></li><li class="yellow"><a href="#-how-it-works-practitioner"><span class="depth-dot yellow" aria-hidden="true"></span>How it works (practitioner)</a></li><li class="red"><a href="#-going-deeper-expert"><span class="depth-dot red" aria-hidden="true"></span>Going deeper (expert)</a></li><li class=""><a href="#common-misconceptions">Common misconceptions</a></li><li class=""><a href="#hands-on-exercise">Hands-on exercise</a></li><li class=""><a href="#check-your-understanding">Check your understanding</a></li><li class=""><a href="#key-terms">Key terms</a></li><li class=""><a href="#further-reading">Further reading</a></li><li class=""><a href="#next">Next</a></li></ol>
+  </aside>
+  <article class="lesson" data-lesson="L1-03">
+    <p class="breadcrumb"><a href="../curriculum.html#level-1">Level 1</a> · Module 1A The math generative models run on</p>
+    <h1>Information Basics: Entropy, Cross-Entropy, Perplexity, KL</h1>
+    <div class="tldr"><strong>TL;DR</strong> Surprise can be measured: an outcome you gave probability <span class="math inline">p</span> costs <span class="math inline">-\log_2 p</span> bits when it happens. Entropy is how surprised you expect to be when your probabilities are right. Cross-entropy is how surprised you actually are when you use a model's probabilities. The gap between them is the KL divergence. Perplexity turns cross-entropy into an &quot;effective number of choices&quot;. Language models are trained by lowering cross-entropy, so these four numbers are how you'll read every training curve in this catalog.</div>
+    <ul class="meta">
+      <li><span aria-hidden="true">⏱</span> 40 min</li>
+      <li>Prerequisites: <a href="L1-02.html">L1-02</a></li>
+      <li>Last reviewed: 2026-11-20</li>
+      <li><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/03-information-basics/README.md">View source on GitHub</a></li>
+    </ul>
+    <div class="depth-filter" role="group" aria-label="Reading depth">
+      <span class="depth-label">Reading depth:</span>
+      <button type="button" data-depth="green" aria-pressed="false"><span class="depth-dot green" aria-hidden="true"></span> Core</button>
+      <button type="button" data-depth="yellow" aria-pressed="false"><span class="depth-dot yellow" aria-hidden="true"></span> + Practitioner</button>
+      <button type="button" data-depth="red" aria-pressed="true"><span class="depth-dot red" aria-hidden="true"></span> + Expert</button>
+    </div>
+    <section class="lesson-section" id="learning-objectives"><h2>Learning objectives</h2><p>By the end you will be able to:</p>
+<ol>
+<li><strong>Compute</strong> surprisal, entropy, cross-entropy, KL divergence and perplexity for a small
+distribution, by hand and in NumPy.</li>
+<li><strong>Explain</strong> why cross-entropy is the loss that language models are trained to lower.</li>
+<li><strong>Interpret</strong> a perplexity value, and say when two perplexities can't be compared.</li>
+<li><strong>Diagnose</strong> why a model that gives any real outcome probability 0 gets an infinite score.</li>
+</ol>
+</section><section class="lesson-section" id="why-this-matters"><h2>Why this matters</h2><p>L1-02 showed that a generative model produces probabilities. This lesson answers the next
+question: how good are those probabilities? You need one number that rewards a model for putting
+high probability on what actually happens, and punishes it for being confidently wrong.</p>
+<p>That number is cross-entropy. It's the loss language models are trained to lower, it's what
+the &quot;loss&quot; axis on a training curve shows, and perplexity, a common headline result in language
+modelling papers, is just cross-entropy in different units. When someone says a model &quot;reached a
+loss of 2.1&quot;, this lesson is what lets you read that.</p>
+</section><section class="lesson-section" id="-core-idea-everyone" data-depth="green"><h2>🟢 Core idea (everyone)</h2><h3 id="surprise-has-a-size">Surprise has a size</h3>
+<p>Brindlewick's weather, from L1-02, is sunny half the time, cloudy 30% of the time and rainy 20%.
+A sunny day surprises nobody. A rainy day is a bit more surprising. A snowstorm in July, which
+you'd give a probability of maybe 1 in 100, is very surprising.</p>
+<p>Information theory, founded by Claude Shannon in 1948, measures this with <strong>surprisal</strong> (also
+called information content):</p>
+<div class="math block">
+\text{surprisal}(x) = -\log_2 p(x)
+</div>
+<p>Here <span class="math inline">p(x)</span> is the probability you gave outcome <span class="math inline">x</span>, and <span class="math inline">\log_2</span> is the logarithm base 2: the
+power you raise 2 to in order to get a number, so <span class="math inline">\log_2 8 = 3</span>. The unit is the <strong>bit</strong>.</p>
+<table>
+<thead>
+<tr>
+<th>Outcome</th>
+<th>Probability</th>
+<th>Surprisal</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sunny</td>
+<td>0.5</td>
+<td>1.000 bits</td>
+</tr>
+<tr>
+<td>cloudy</td>
+<td>0.3</td>
+<td>1.737 bits</td>
+</tr>
+<tr>
+<td>rain</td>
+<td>0.2</td>
+<td>2.322 bits</td>
+</tr>
+<tr>
+<td>a 1-in-100 event</td>
+<td>0.01</td>
+<td>6.644 bits</td>
+</tr>
+<tr>
+<td>something certain</td>
+<td>1.0</td>
+<td>0 bits</td>
+</tr>
+</tbody>
+</table>
+<p><img src="../img/curriculum/level-1-foundations/03-information-basics/diagrams/surprisal_curve.png" alt="A curve of surprisal in bits against probability from 0 to 1. The curve falls steeply from about 7.6 bits near p = 0.005 down to 0 bits at p = 1. Marked points: a 1-in-100 event at p = 0.01 is 6.64 bits, rain at 0.2 is 2.32 bits, cloudy at 0.3 is 1.74 bits, sunny at 0.5 is 1.00 bits, and a certain event at p = 1 is 0 bits" /></p>
+<p><em>Surprisal falls as probability rises, and shoots up without limit as probability approaches zero.</em></p>
+<p>Why a logarithm? Three reasons, each worth knowing:</p>
+<ul>
+<li><strong>Certain things carry no information.</strong> <span class="math inline">\log_2 1 = 0</span>.</li>
+<li><strong>Rarer things carry more.</strong> As <span class="math inline">p</span> shrinks, <span class="math inline">-\log_2 p</span> grows.</li>
+<li><strong>Surprises add up.</strong> Two independent events with probabilities <span class="math inline">\tfrac{1}{2}</span> and <span class="math inline">\tfrac{1}{4}</span>
+happen together with probability <span class="math inline">\tfrac{1}{8}</span>, and <span class="math inline">1 + 2 = 3</span> bits. Logarithms turn
+multiplying probabilities into adding surprisals, the same trick as log-probabilities in L1-02.</li>
+</ul>
+<p>One bit is the surprise of a fair coin landing on a particular side. A rainy day in Brindlewick
+is &quot;worth&quot; about 2.3 coin flips of surprise.</p>
+<h3 id="entropy-how-unpredictable-is-the-weather">Entropy: how unpredictable is the weather?</h3>
+<p><strong>Entropy</strong> is the average surprisal you expect, when the outcomes really do follow your
+probabilities. It's an <strong>expected value</strong> (L1-02): weight each surprisal by its probability, then
+add.</p>
+<div class="math block">
+H(P) = -\sum_x P(x) \log_2 P(x)
+</div>
+<p>The <span class="math inline">\sum_x</span> means &quot;add up over every outcome <span class="math inline">x</span>&quot;. For the weather:</p>
+<div class="math block">
+H = 0.5 \times 1.000 + 0.3 \times 1.737 + 0.2 \times 2.322 = 1.485 \text{ bits}
+</div>
+<p><img src="../img/curriculum/level-1-foundations/03-information-basics/diagrams/entropy_bars.png" alt="Three bar charts of probability over sunny, cloudy and rain. Left, certain: sunny 1.00, others 0, entropy 0.000 bits. Middle, Brindlewick's weather: 0.50, 0.30, 0.20, entropy 1.485 bits. Right, uniform: 0.33 each, entropy 1.585 bits" /></p>
+<p><em>Entropy is zero when the outcome is certain, and highest when every outcome is equally likely.</em></p>
+<p>A distribution where one outcome is certain has entropy 0. A three-way coin toss, with each outcome at 1/3, has
+the most entropy possible for three outcomes, <span class="math inline">\log_2 3 = 1.585</span> bits. Brindlewick's weather sits
+in between: a little predictable, mostly not.</p>
+<p><strong>An analogy.</strong> Entropy is like the average number of yes-or-no questions you'd need to find out
+the weather, if you ask cleverly. Ask &quot;Is it sunny?&quot; first. Half the time you're done after one
+question; otherwise ask &quot;Is it cloudy?&quot;. That takes <span class="math inline">0.5 \times 1 + 0.5 \times 2 = 1.5</span> questions
+on average, very close to 1.485.</p>
+<p><strong>Where the analogy breaks down:</strong> you can't ask 1.485 questions, so a question-asking strategy
+for a single day can only approach the entropy. You get closer to it by asking about many days at
+once, which is what compression software does. The analogy also hides that entropy is a property
+of the <em>distribution</em>, not of any one day.</p>
+<h3 id="cross-entropy-how-surprised-does-a-forecaster-make-you">Cross-entropy: how surprised does a forecaster make you?</h3>
+<p>Now suppose a forecaster doesn't know the true distribution <span class="math inline">P</span>. They publish their own
+probabilities <span class="math inline">Q</span>, and the real weather keeps happening according to <span class="math inline">P</span>. Each day, you score
+the forecaster by the surprisal of what actually happened, <em>under their probabilities</em>. Their
+average score is the <strong>cross-entropy</strong>:</p>
+<div class="math block">
+H(P, Q) = -\sum_x P(x) \log_2 Q(x)
+</div>
+<p>The outcomes are weighted by how often they really happen (<span class="math inline">P</span>), but the surprise is measured with
+the forecaster's probabilities (<span class="math inline">Q</span>). Four forecasters, scored against Brindlewick's real weather:</p>
+<table>
+<thead>
+<tr>
+<th>Forecaster</th>
+<th>Their Q (sunny, cloudy, rain)</th>
+<th>Cross-entropy</th>
+<th>Perplexity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>honest</td>
+<td>0.50, 0.30, 0.20</td>
+<td>1.485 bits</td>
+<td>2.800</td>
+</tr>
+<tr>
+<td>uniform</td>
+<td>0.33, 0.33, 0.33</td>
+<td>1.585 bits</td>
+<td>3.000</td>
+</tr>
+<tr>
+<td>sunny-ish</td>
+<td>0.70, 0.20, 0.10</td>
+<td>1.618 bits</td>
+<td>3.070</td>
+</tr>
+<tr>
+<td>no-rain</td>
+<td>0.60, 0.40, 0.00</td>
+<td>infinite</td>
+<td>infinite</td>
+</tr>
+</tbody>
+</table>
+<p>The honest forecaster scores lowest, and that isn't luck: no forecaster can beat the true
+probabilities on average (🔴 explains why). Every other forecaster pays extra bits. And the
+no-rain forecaster, who called rain <em>impossible</em>, gets an infinite score the first time it rains,
+because <span class="math inline">-\log_2 0</span> is infinite. One impossible outcome that happens ruins the whole average.</p>
+<h3 id="perplexity-an-effective-number-of-choices">Perplexity: an effective number of choices</h3>
+<p>Bits are hard to picture. <strong>Perplexity</strong> converts cross-entropy back into a count:</p>
+<div class="math block">
+\text{perplexity} = 2^{H(P, Q)}
+</div>
+<p>The uniform forecaster's perplexity is exactly 3: it's as uncertain as someone choosing among 3
+equally likely options. The honest forecaster's 2.8 means it's as uncertain as choosing among
+about 2.8 options. Lower perplexity means the model is less &quot;perplexed&quot; by what it sees.</p>
+<p>For language models, a character model that guesses uniformly among 27 symbols (26 letters and a
+space) has perplexity 27. A model with perplexity 10 on some text is, on average, as uncertain as
+if it were choosing among 10 equally likely next tokens at every step.</p>
+<h3 id="why-this-is-how-language-models-are-trained">Why this is how language models are trained</h3>
+<p>A language model sees training text, and at every position it gives a probability to the token
+that actually comes next. The training goal is to make the average surprisal of those real next
+tokens as small as possible. That average is the model's cross-entropy on the text. A function
+that measures how wrong a model is, which training then tries to make smaller, is called a
+<strong>loss function</strong>, and cross-entropy is the standard loss function for language models.</p>
+<p>So the &quot;loss&quot; in a training log is an average surprisal per token, and lowering it means the
+model is getting less surprised by real text. L1-05 shows how training lowers a loss.</p>
+</section><section class="lesson-section" id="-how-it-works-practitioner" data-depth="yellow"><h2>🟡 How it works (practitioner)</h2><h3 id="the-four-quantities-in-numpy">The four quantities in NumPy</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/03-information-basics/code/entropy_and_friends.py">code/entropy_and_friends.py</a> computes everything above. Run it from
+this lesson's folder:</p>
+<pre><code class="language-bash">python code/entropy_and_friends.py
+</code></pre>
+<p>The definitions are short:</p>
+<pre><code class="language-python">def surprisal(p):
+    with np.errstate(divide=&quot;ignore&quot;):   # log2(0) is -inf; let it through quietly
+        return -np.log2(p)
+
+def entropy(p):
+    nonzero = p &gt; 0                      # outcomes with p = 0 never happen, so contribute 0
+    return float(np.sum(p[nonzero] * surprisal(p[nonzero])))
+
+def cross_entropy(p, q):
+    nonzero = p &gt; 0
+    return float(np.sum(p[nonzero] * surprisal(q[nonzero])))
+
+def kl_divergence(p, q):
+    return cross_entropy(p, q) - entropy(p)
+</code></pre>
+<p>The <code>nonzero</code> filter in <code>entropy</code> follows the convention that <span class="math inline">0 \log 0 = 0</span>: an outcome that
+never happens adds no surprise. In <code>cross_entropy</code>, it's <span class="math inline">p</span> that's filtered, not <span class="math inline">q</span>, so an
+outcome that really happens but has <span class="math inline">q = 0</span> still produces infinity. That's the correct answer,
+not a bug.</p>
+<h3 id="kl-divergence-the-extra-cost-of-being-wrong">KL divergence: the extra cost of being wrong</h3>
+<p>The <strong>Kullback–Leibler (KL) divergence</strong> is the gap between cross-entropy and entropy:</p>
+<div class="math block">
+D_{\mathrm{KL}}(P \parallel Q) = H(P, Q) - H(P) = \sum_x P(x) \log_2 \frac{P(x)}{Q(x)}
+</div>
+<p>It measures how many extra bits per outcome you pay for using <span class="math inline">Q</span> when the truth is <span class="math inline">P</span>. From the
+script's output:</p>
+<pre><code class="language-text">forecaster   Q                    cross-entropy   KL(P||Q)   perplexity
+  honest     (0.50, 0.30, 0.20)      1.485 bits    0.000      2.800
+  uniform    (0.33, 0.33, 0.33)      1.585 bits    0.099      3.000
+  sunny-ish  (0.70, 0.20, 0.10)      1.618 bits    0.133      3.070
+  no-rain    (0.60, 0.40, 0.00)        inf bits      inf        inf
+</code></pre>
+<p>The honest forecaster's KL is 0. Everyone else's is positive. KL is often described as a
+&quot;distance&quot; between distributions, but it isn't one in the strict sense, because it isn't
+symmetric:</p>
+<pre><code class="language-text">KL is not symmetric:
+  KL(P || sunny-ish) = 0.133 bits
+  KL(sunny-ish || P) = 0.123 bits
+</code></pre>
+<p>Which distribution goes first matters, and 🔴 shows that the choice changes how a model behaves.</p>
+<h3 id="scoring-text-cross-entropy-on-data">Scoring text: cross-entropy on data</h3>
+<p>In practice, you don't know the true distribution <span class="math inline">P</span>. You have text, which is a <em>sample</em> from it.
+So you estimate cross-entropy by averaging the surprisal of the model over the text itself:</p>
+<div class="math block">
+H \approx \frac{1}{N} \sum_{t=1}^{N} -\log_2 Q(x_t \mid x_1, \ldots, x_{t-1})
+</div>
+<p>Here <span class="math inline">N</span> is the number of tokens, <span class="math inline">x_t</span> is the token at position <span class="math inline">t</span>, and the conditional
+probability comes from the chain rule (L1-02). This average of negative log-probabilities is also
+called the <strong>negative log-likelihood</strong> (NLL): the <strong>likelihood</strong> of a text is the probability a
+model gives it, and the NLL per token is exactly the cross-entropy estimate above.</p>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/03-information-basics/code/score_text.py">code/score_text.py</a> scores text with three tiny character models. Each
+&quot;model&quot; is just a table of probabilities for the 27 symbols, built from a 354-character
+paragraph about Brindlewick:</p>
+<pre><code class="language-text">training text: 354 characters   test text: 80 characters
+symbols in the test text that never appear in training: ['j', 'z']
+
+model      train bits/char  train perplexity   test bits/char  test perplexity
+  uniform         4.755           27.00              4.755           27.00
+  counted         4.075           16.85                inf             inf
+  smoothed        4.087           16.99              4.248           19.00
+</code></pre>
+<p>Three lessons are packed into this table:</p>
+<ul>
+<li><strong>Uniform gives exactly 27.</strong> <span class="math inline">\log_2 27 = 4.755</span> bits, and <span class="math inline">2^{4.755} = 27</span>.</li>
+<li><strong>Counting from data helps.</strong> Knowing that &quot;e&quot; and space are common lowers perplexity from 27
+to about 17 on the training text.</li>
+<li><strong>Unseen symbols break an unsmoothed model.</strong> The test sentence contains &quot;j&quot; and &quot;z&quot;, which the
+training paragraph never used. The counted model gives them probability 0, so its test
+cross-entropy is infinite. <strong>Smoothing</strong>, here adding 1 to every count so nothing has
+probability 0, fixes it, at a small cost on the training text. It also shows the usual gap:
+every model that learned from the training text does worse on new text (19.00 vs 16.99).
+Always report scores on <strong>held-out data</strong>, text the model didn't learn from.</li>
+</ul>
+<h3 id="bits-or-nats">Bits or nats?</h3>
+<p>Most training code uses the natural logarithm, <span class="math inline">\ln</span>, instead of <span class="math inline">\log_2</span>. Then the unit is the
+<strong>nat</strong>, and perplexity is <span class="math inline">e^{\text{loss}}</span> instead of <span class="math inline">2^{\text{loss}}</span>. The two units differ by
+a constant: 1 nat = <span class="math inline">1/\ln 2 \approx 1.443</span> bits. A loss of 2.1 nats per token is about 3.03 bits
+per token, and either way the perplexity is <span class="math inline">e^{2.1} \approx 8.2</span>. Perplexity doesn't depend on
+the base, as long as you raise the matching base.</p>
+<h3 id="common-pitfalls">Common pitfalls</h3>
+<ul>
+<li><strong>Comparing perplexities across tokenizers.</strong> Perplexity is <em>per token</em>. A model that splits
+text into more, smaller tokens has an easier job per token and can look better while being no
+better at all. Compare models only on the same tokens, or convert to bits per character or per
+byte, which don't depend on the tokenizer.</li>
+<li><strong>Mixing log bases.</strong> A loss in nats and a loss in bits for the same model differ by a factor of
+1.443. Check which one a number is before you compare it.</li>
+<li><strong>Scoring on training data.</strong> Training cross-entropy is optimistic. Report held-out numbers.</li>
+<li><strong>Zero probabilities.</strong> Any outcome a model says is impossible will, eventually, happen in real
+data. Smooth count-based models, and check that a model's probabilities are never exactly 0.</li>
+<li><strong>Reading low perplexity as &quot;correct&quot;.</strong> Perplexity measures how predictable text is to a model,
+not whether the text is true. A fluent false sentence can have low perplexity.</li>
+</ul>
+</section><section class="lesson-section" id="-going-deeper-expert" data-depth="red"><h2>🔴 Going deeper (expert)</h2><h3 id="gibbs-inequality-the-truth-always-wins-on-average">Gibbs' inequality: the truth always wins on average</h3>
+<p>KL divergence is never negative, and it's zero only when <span class="math inline">Q = P</span>:</p>
+<div class="math block">
+D_{\mathrm{KL}}(P \parallel Q) \ge 0
+</div>
+<p>This is <strong>Gibbs' inequality</strong>. It follows from Jensen's inequality, because <span class="math inline">\log</span> is a concave
+function. Its consequence is the reason cross-entropy works as a loss: since <span class="math inline">H(P, Q) = H(P) +
+D_{\mathrm{KL}}(P \parallel Q)</span> and <span class="math inline">H(P)</span> is fixed by the data, the cross-entropy is lowest
+exactly when the model's probabilities match the true ones. A scoring rule with this property,
+where honest probabilities give the best expected score, is called a <strong>proper scoring rule</strong>.
+Log-loss (cross-entropy) is one. Accuracy, which only checks the top guess, is not: it can't tell a model that's
+51% sure from one that's 99% sure.</p>
+<p>It also explains a limit: on average (in expectation), no model can get a cross-entropy below
+the entropy of the data. A small test set can dip below it by chance. If
+language has some irreducible unpredictability, a language model's loss can approach that floor
+but never cross it.</p>
+<h3 id="maximum-likelihood-is-minimizing-kl">Maximum likelihood is minimizing KL</h3>
+<p>Training a model on data by <strong>maximum likelihood</strong> means choosing parameters that give the
+training data the highest probability. Since the log is increasing, that's the same as minimizing
+the NLL, which is the cross-entropy between the <strong>empirical distribution</strong> (the data's own
+frequencies) and the model. And since the data's entropy doesn't depend on the model, it's also
+the same as minimizing <span class="math inline">D_{\mathrm{KL}}(P_{\text{data}} \parallel Q_{\text{model}})</span>. Three names
+describe one objective: maximize likelihood, minimize cross-entropy, minimize forward KL.</p>
+<h3 id="forward-and-reverse-kl-behave-differently">Forward and reverse KL behave differently</h3>
+<p>Because KL isn't symmetric, the direction you minimize changes the model you get. Suppose the
+truth <span class="math inline">P</span> has two separate peaks and your model <span class="math inline">Q</span> can only make one.</p>
+<ul>
+<li><strong>Forward KL</strong>, <span class="math inline">D_{\mathrm{KL}}(P \parallel Q)</span>, the maximum-likelihood direction, punishes <span class="math inline">Q</span>
+heavily wherever <span class="math inline">P</span> has probability and <span class="math inline">Q</span> doesn't (the no-rain disaster). So <span class="math inline">Q</span> spreads out
+to cover both peaks, even if that puts probability in the valley between them. This is called
+<strong>mode-covering</strong>.</li>
+<li><strong>Reverse KL</strong>, <span class="math inline">D_{\mathrm{KL}}(Q \parallel P)</span>, punishes <span class="math inline">Q</span> for putting probability where <span class="math inline">P</span>
+has little. So <span class="math inline">Q</span> tends to settle on one peak and ignore the other. This is called
+<strong>mode-seeking</strong>.</li>
+</ul>
+<p>Both directions appear in generative modelling. Language-model pretraining uses forward KL (via
+cross-entropy). Variational methods such as the variational autoencoder (L2-12) are usually built
+around reverse KL. Reinforcement-learning methods that keep a fine-tuned model close to a
+reference model often add a KL penalty between the two (L7-07).</p>
+<h3 id="perplexity-entropy-rate-and-compression">Perplexity, entropy rate and compression</h3>
+<p>For text, the meaningful quantity is the <strong>entropy rate</strong>: the average entropy of the next symbol
+given all the previous ones, in the limit of long text. Shannon (1951) estimated the entropy rate
+of printed English with human prediction experiments, getting bounds of roughly 0.6 to 1.3 bits
+per character when people could see a long stretch of preceding text. The counted model above (a
+<em>unigram</em> model: it ignores context), at about 4.1 bits per character, is nowhere near that, because it ignores context entirely.
+TODO(verify): confirm the 0.6–1.3 bits-per-character range against Shannon (1951), table and
+experimental conditions.</p>
+<p>Cross-entropy is also a compression rate. A method called <strong>arithmetic coding</strong> can use a model's
+probabilities to encode text in, on average, very close to the model's cross-entropy in bits per
+symbol. So a better predictor is literally a better compressor, and the reverse. Delétang and
+colleagues (2023) made this link concrete, using large language models as general-purpose
+compressors for text, images and audio. Whether &quot;compression&quot; fully explains what these models
+learn is an open debate.</p>
+<h3 id="calibration-probabilities-you-can-take-at-face-value">Calibration: probabilities you can take at face value</h3>
+<p>A model is calibrated (L0-04) if, among all the times it says 70%, the event happens about 70% of the
+time. Cross-entropy rewards calibration, because it's proper. But a model can be well calibrated
+and still unhelpful (always predicting the long-run frequencies is calibrated), and later training
+stages can change calibration. Treat a model's stated confidence as evidence, not as a guarantee.
+L7-11 returns to this in the science of evaluation.</p>
+</section><section class="lesson-section" id="common-misconceptions"><h2>Common misconceptions</h2><ul>
+<li><strong>Myth:</strong> Lower perplexity always means a better model.
+<strong>Reality:</strong> Only when the test text and the tokenizer are the same. Across tokenizers or
+datasets, the numbers aren't comparable.</li>
+<li><strong>Myth:</strong> KL divergence is the distance between two distributions.
+<strong>Reality:</strong> It's not symmetric, so it isn't a distance. <span class="math inline">D_{\mathrm{KL}}(P \parallel Q)</span> and
+<span class="math inline">D_{\mathrm{KL}}(Q \parallel P)</span> are different numbers, and minimizing each gives different models.</li>
+<li><strong>Myth:</strong> Entropy measures disorder or messiness in the text.
+<strong>Reality:</strong> Here it measures unpredictability under a distribution. The same text has different
+cross-entropy under different models.</li>
+<li><strong>Myth:</strong> A training loss near zero means the model is excellent.
+<strong>Reality:</strong> On average, no model's held-out loss can go below the entropy of the text, so a near-zero
+<em>training</em> loss usually means the model memorized its training text. Check the held-out loss
+(L1-05).</li>
+</ul>
+</section><section class="lesson-section" id="hands-on-exercise"><h2>Hands-on exercise</h2><p><strong>Goal:</strong> rank weather forecasters by cross-entropy, and see what a short test log can do to the
+ranking.</p>
+<p>Open <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/03-information-basics/exercises/which_forecaster.py">exercises/which_forecaster.py</a>. Five forecasters each see
+yesterday's weather and forecast today: <code>climate</code> (always 0.5, 0.3, 0.2), <code>persistence</code> (&quot;same as
+yesterday&quot; at 0.8), <code>transition</code> (the L1-02 table, which is how the generated weather really
+works), <code>no_rain</code> (certain it never rains), and <code>smoothed_no_rain</code>. Complete <code>average_surprisal()</code>,
+then predict the ranking on the 14-day fortnight and on 5,000 generated days before running.</p>
+<p>You've succeeded when you can explain why the rankings differ.</p>
+<details>
+<summary>Solution</summary>
+<p>The full solution is in
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/03-information-basics/exercises/solutions/which_forecaster.py">exercises/solutions/which_forecaster.py</a>:</p>
+<pre><code class="language-python">def average_surprisal(probabilities):
+    if any(p == 0 for p in probabilities):
+        return math.inf
+    return sum(-math.log2(p) for p in probabilities) / len(probabilities)
+</code></pre>
+<pre><code class="language-text">the fortnight: 13 forecasts scored
+  climate           cross-entropy  1.430 bits/day   perplexity  2.695
+  transition        cross-entropy  1.487 bits/day   perplexity  2.803
+  smoothed_no_rain  cross-entropy  1.601 bits/day   perplexity  3.034
+  persistence       cross-entropy  2.399 bits/day   perplexity  5.274
+  no_rain           cross-entropy    inf bits/day   perplexity    inf
+5,000 generated days: 4,999 forecasts scored
+  transition        cross-entropy  1.332 bits/day   perplexity  2.518
+  climate           cross-entropy  1.474 bits/day   perplexity  2.777
+  persistence       cross-entropy  1.643 bits/day   perplexity  3.124
+  smoothed_no_rain  cross-entropy  1.770 bits/day   perplexity  3.410
+  no_rain           cross-entropy    inf bits/day   perplexity    inf
+</code></pre>
+<p>On 13 forecasts, <code>climate</code> beats <code>transition</code>, even though <code>transition</code> knows the real rules.
+Thirteen days is too few: a couple of lucky days decide the order. On 4,999 forecasts,
+<code>transition</code> wins clearly, as Gibbs' inequality says it must on average. <code>no_rain</code> is infinite on
+both logs, because it rains at least once and it called rain impossible. Smoothing makes it finite
+but still poor, because it still badly underrates rain.</p>
+<p>The lesson for evaluating real models: score on enough held-out data, and treat small differences
+on small test sets with suspicion.</p>
+</details>
+</section><section class="lesson-section" id="check-your-understanding"><h2>Check your understanding</h2><div class="quiz" data-lesson="L1-03" data-count="5"><ol class="questions"><li class="question" data-kind="single" data-answer="B"><div class="q-text">A model gave the token that actually came next a probability of 0.25. What is its surprisal?</div><fieldset><legend class="visually-hidden">Options for question 1</legend><label class="option"><input type="radio" name="L1-03-q1" value="A"><span class="letter">A.</span> <span>0.25 bits</span></label><label class="option"><input type="radio" name="L1-03-q1" value="B"><span class="letter">B.</span> <span>2 bits</span></label><label class="option"><input type="radio" name="L1-03-q1" value="C"><span class="letter">C.</span> <span>4 bits</span></label><label class="option"><input type="radio" name="L1-03-q1" value="D"><span class="letter">D.</span> <span>−2 bits</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> <span class="math inline">-\log_2 0.25 = 2</span> bits, because <span class="math inline">2^2 = 4</span> and <span class="math inline">0.25 = 1/4</span>. C confuses surprisal
+with <span class="math inline">1/p</span>, which is the corresponding &quot;number of choices&quot;. D forgets the minus sign, and
+surprisal is never negative.</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,C,D"><div class="q-text">Which of these are true? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 2</legend><label class="option"><input type="checkbox" name="L1-03-q2" value="A"><span class="letter">A.</span> <span>Cross-entropy is never smaller than the entropy of the true distribution</span></label><label class="option"><input type="checkbox" name="L1-03-q2" value="B"><span class="letter">B.</span> <span>KL divergence is symmetric: swapping P and Q gives the same number</span></label><label class="option"><input type="checkbox" name="L1-03-q2" value="C"><span class="letter">C.</span> <span>A model that gives a real outcome probability 0 has infinite cross-entropy on data</span></label><label class="option"><input type="checkbox" name="L1-03-q2" value="D"><span class="letter">D.</span> <span>Perplexity equals 2 raised to the cross-entropy in bits</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, C, D.</strong> A is Gibbs' inequality, since cross-entropy is entropy plus a KL divergence that's
+never negative. C follows from <span class="math inline">-\log_2 0 = \infty</span>. D is the definition. B is false: the
+lesson's sunny-ish forecaster gives 0.133 bits one way and 0.123 bits the other.</p>
+</div></li><li class="question" data-kind="single" data-answer="C"><div class="q-text">Two teams report perplexity on the same test text. Team A reports 12 using a tokenizer with short tokens. Team B reports 20 using a tokenizer with long tokens. What can you conclude?</div><fieldset><legend class="visually-hidden">Options for question 3</legend><label class="option"><input type="radio" name="L1-03-q3" value="A"><span class="letter">A.</span> <span>Team A's model is better, because its perplexity is lower</span></label><label class="option"><input type="radio" name="L1-03-q3" value="B"><span class="letter">B.</span> <span>Team B's model is better, because longer tokens are harder to predict</span></label><label class="option"><input type="radio" name="L1-03-q3" value="C"><span class="letter">C.</span> <span>Nothing yet: per-token perplexities from different tokenizers aren't comparable</span></label><label class="option"><input type="radio" name="L1-03-q3" value="D"><span class="letter">D.</span> <span>The models are equally good, because perplexity doesn't depend on the tokenizer</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>C.</strong> Perplexity is per token, and the two tokenizers cut the same text into different numbers
+of tokens. Convert both to bits per character (or per byte) of the same text, which doesn't
+depend on how the text was split, and then compare. A and B each assume a comparison the numbers
+can't support, and D is the opposite of the truth.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text">A training log shows a loss of 2.3 nats per token on held-out text. What is the perplexity, and roughly how many bits per token is the loss? Then, by hand: a fair coin is <span class="math inline">P = (0.5, 0.5)</span> and a model predicts <span class="math inline">Q = (0.75, 0.25)</span>. What is <span class="math inline">D_{\mathrm{KL}}(P \parallel Q)</span> in bits?</div><label class="visually-hidden" for="L1-03-q4-text">Your answer</label><textarea id="L1-03-q4-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>The loss is in nats, so perplexity is <span class="math inline">e^{2.3} \approx 10</span>: on average the model is as
+uncertain as choosing among about 10 equally likely tokens. In bits, <span class="math inline">2.3 \times 1.443 \approx
+3.3</span> bits per token, and <span class="math inline">2^{3.3} \approx 10</span> gives the same perplexity, as it must.</p>
+<p>For the coin:</p>
+<div class="math block">
+D_{\mathrm{KL}}(P \parallel Q) = 0.5 \log_2 \frac{0.5}{0.75} + 0.5 \log_2 \frac{0.5}{0.25}
+\approx 0.5 \times (-0.585) + 0.5 \times 1 \approx 0.208 \text{ bits}
+</div>
+<p>That's the extra surprisal per toss from using the model instead of the truth. (The reverse direction,
+<span class="math inline">D_{\mathrm{KL}}(Q \parallel P)</span>, is about 0.189 bits, not the same.)</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text"><strong>Explain it to a colleague:</strong> in plain language, what does it mean that a language model is &quot;trained to minimize cross-entropy&quot;, and why is that a sensible goal?</div><label class="visually-hidden" for="L1-03-q5-text">Your answer</label><textarea id="L1-03-q5-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>At every position in the training text, the model gives a probability to every possible next
+token. We look at the probability it gave the token that really came next, and measure how
+surprised it was: a low probability means high surprise. Cross-entropy is the average of that
+surprise over the text, and training adjusts the model to make the average smaller. It's
+sensible because it rewards putting high probability on what really happens and punishes being
+confidently wrong, and the best possible score on average comes from matching the true
+probabilities, so the model is pushed towards realistic probabilities rather than lucky guesses.</p>
+</div></li></ol><p class="quiz-score" aria-live="polite"></p></div></section><section class="lesson-section" id="key-terms"><h2>Key terms</h2><ul>
+<li><a href="../glossary.html#arithmetic-coding">Arithmetic coding</a></li>
+<li><a href="../glossary.html#bit">Bit</a></li>
+<li><a href="../glossary.html#cross-entropy">Cross-entropy</a></li>
+<li><a href="../glossary.html#empirical-distribution">Empirical distribution</a></li>
+<li><a href="../glossary.html#entropy">Entropy</a></li>
+<li><a href="../glossary.html#entropy-rate">Entropy rate</a></li>
+<li><a href="../glossary.html#forward-kl">Forward KL</a></li>
+<li><a href="../glossary.html#gibbs-inequality">Gibbs' inequality</a></li>
+<li><a href="../glossary.html#held-out-data">Held-out data</a></li>
+<li><a href="../glossary.html#kl-divergence">KL divergence</a></li>
+<li><a href="../glossary.html#likelihood">Likelihood</a></li>
+<li><a href="../glossary.html#loss-function">Loss function</a></li>
+<li><a href="../glossary.html#maximum-likelihood">Maximum likelihood</a></li>
+<li><a href="../glossary.html#mode-covering">Mode-covering</a></li>
+<li><a href="../glossary.html#mode-seeking">Mode-seeking</a></li>
+<li><a href="../glossary.html#nat">Nat</a></li>
+<li><a href="../glossary.html#negative-log-likelihood">Negative log-likelihood</a></li>
+<li><a href="../glossary.html#perplexity">Perplexity</a></li>
+<li><a href="../glossary.html#proper-scoring-rule">Proper scoring rule</a></li>
+<li><a href="../glossary.html#reverse-kl">Reverse KL</a></li>
+<li><a href="../glossary.html#smoothing">Smoothing</a></li>
+<li><a href="../glossary.html#surprisal">Surprisal</a></li>
+</ul>
+</section><section class="lesson-section" id="further-reading"><h2>Further reading</h2><ul>
+<li>🟢 <strong>Information Theory, Inference, and Learning Algorithms</strong> — D. J. C. MacKay (2003).
+Cambridge University Press. Free to read online; chapters 1–2 introduce entropy with many
+examples. <a href="https://www.inference.org.uk/mackay/itila/">https://www.inference.org.uk/mackay/itila/</a></li>
+<li>🟡 <strong>Elements of Information Theory</strong> — T. M. Cover and J. A. Thomas (2nd ed., 2006). Wiley.
+Chapter 2 covers entropy, relative entropy (KL) and the information inequality (Gibbs'
+inequality) with proofs.</li>
+<li>🟡 <strong>Speech and Language Processing</strong>, chapter &quot;N-gram Language Models&quot; — D. Jurafsky and
+J. H. Martin (3rd ed. draft). Perplexity, smoothing and evaluating language models.
+<a href="https://web.stanford.edu/~jurafsky/slp3/">https://web.stanford.edu/~jurafsky/slp3/</a></li>
+<li>🔴 <strong>A Mathematical Theory of Communication</strong> — C. E. Shannon (1948). <em>Bell System Technical
+Journal</em>, 27, 379–423 and 623–656. The paper that defined entropy for communication.</li>
+<li>🔴 <strong>Prediction and Entropy of Printed English</strong> — C. E. Shannon (1951). <em>Bell System Technical
+Journal</em>, 30, 50–64. Human-prediction estimates of the entropy of English.</li>
+<li>🔴 <strong>Language Modeling Is Compression</strong> — G. Delétang et al. (2023). arXiv:2309.10668.
+<a href="https://arxiv.org/abs/2309.10668">https://arxiv.org/abs/2309.10668</a></li>
+</ul>
+</section><section class="lesson-section" id="next"><h2>Next</h2><ul>
+<li><strong>Next lesson:</strong> <a href="../lessons/L1-04.html">L1-04 Derivatives, Gradients and the Chain Rule</a></li>
+<li><strong>Related:</strong> L1-05 lowers a loss with gradient descent. L1-06 trains a bigram model by
+minimizing cross-entropy. L2-12 meets KL divergence again in variational autoencoders.</li>
+</ul>
+</section>
+    <div class="complete-box">
+      <button type="button" class="btn primary mark-complete" data-lesson="L1-03">Mark lesson as complete</button>
+      <p class="complete-status" aria-live="polite"></p>
+    </div>
+    <nav class="pager" aria-label="Lesson navigation"><a class="pager-prev" href="L1-02.html" rel="prev"><small>Previous</small>L1-02 Probability for Generative Models</a><a class="pager-next" href="L1-04.html" rel="next"><small>Next</small>L1-04 Derivatives, Gradients and the Chain Rule</a></nav>
+  </article>
+</div>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="../about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>

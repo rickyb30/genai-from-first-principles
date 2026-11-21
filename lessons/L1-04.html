@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Derivatives, Gradients and the Chain Rule · Generative AI from First Principles</title>
+<meta name="description" content="Training a model means nudging its numbers so the loss goes down. To know which way to nudge, you need the slope of the loss with respect to each number: its derivative. A gradient is all those slopes collected into one vector. The chain rule lets you get slopes of big functions by multiplying the s">
+<link rel="stylesheet" href="../style.css?v=2026-11-20">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css">
+<script defer src="../vendor/katex/katex.min.js"></script>
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="../data.js?v=2026-11-20"></script>
+<script defer src="../app.js?v=2026-11-20"></script>
+</head>
+<body data-root="../">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="../index.html">Home</a></li>
+<li><a href="../curriculum.html">Curriculum</a></li>
+<li><a href="../paths.html">Learning paths</a></li>
+<li><a href="../glossary.html">Glossary & flashcards</a></li>
+<li><a href="../progress.html">Progress</a></li>
+<li><a href="../about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<div class="lesson-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol><li class=""><a href="#learning-objectives">Learning objectives</a></li><li class=""><a href="#why-this-matters">Why this matters</a></li><li class="green"><a href="#-core-idea-everyone"><span class="depth-dot green" aria-hidden="true"></span>Core idea (everyone)</a></li><li class="yellow"><a href="#-how-it-works-practitioner"><span class="depth-dot yellow" aria-hidden="true"></span>How it works (practitioner)</a></li><li class="red"><a href="#-going-deeper-expert"><span class="depth-dot red" aria-hidden="true"></span>Going deeper (expert)</a></li><li class=""><a href="#common-misconceptions">Common misconceptions</a></li><li class=""><a href="#hands-on-exercise">Hands-on exercise</a></li><li class=""><a href="#check-your-understanding">Check your understanding</a></li><li class=""><a href="#key-terms">Key terms</a></li><li class=""><a href="#further-reading">Further reading</a></li><li class=""><a href="#next">Next</a></li></ol>
+  </aside>
+  <article class="lesson" data-lesson="L1-04">
+    <p class="breadcrumb"><a href="../curriculum.html#level-1">Level 1</a> · Module 1A The math generative models run on</p>
+    <h1>Derivatives, Gradients and the Chain Rule</h1>
+    <div class="tldr"><strong>TL;DR</strong> Training a model means nudging its numbers so the loss goes down. To know which way to nudge, you need the slope of the loss with respect to each number: its derivative. A gradient is all those slopes collected into one vector. The chain rule lets you get slopes of big functions by multiplying the slopes of their small steps, which is exactly what backpropagation does. This lesson computes all three by hand and checks every one numerically.</div>
+    <ul class="meta">
+      <li><span aria-hidden="true">⏱</span> 45 min</li>
+      <li>Prerequisites: <a href="L1-01.html">L1-01</a></li>
+      <li>Last reviewed: 2026-11-20</li>
+      <li><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/04-derivatives-gradients-chain-rule/README.md">View source on GitHub</a></li>
+    </ul>
+    <div class="depth-filter" role="group" aria-label="Reading depth">
+      <span class="depth-label">Reading depth:</span>
+      <button type="button" data-depth="green" aria-pressed="false"><span class="depth-dot green" aria-hidden="true"></span> Core</button>
+      <button type="button" data-depth="yellow" aria-pressed="false"><span class="depth-dot yellow" aria-hidden="true"></span> + Practitioner</button>
+      <button type="button" data-depth="red" aria-pressed="true"><span class="depth-dot red" aria-hidden="true"></span> + Expert</button>
+    </div>
+    <section class="lesson-section" id="learning-objectives"><h2>Learning objectives</h2><p>By the end you will be able to:</p>
+<ol>
+<li><strong>Estimate</strong> a derivative numerically with forward and central differences, and explain why
+the step size can be neither too big nor too small.</li>
+<li><strong>Compute</strong> partial derivatives and the gradient of a function of several inputs.</li>
+<li><strong>Apply</strong> the chain rule to a composed function, using a forward pass and a backward pass on
+a computational graph.</li>
+<li><strong>Check</strong> a hand-written gradient against a numerical estimate.</li>
+</ol>
+</section><section class="lesson-section" id="why-this-matters"><h2>Why this matters</h2><p>L1-03 showed that a language model is judged by a loss: its cross-entropy on real text. A model
+with billions of <strong>parameters</strong> (the adjustable numbers inside it, L0-02) is trained by
+repeatedly asking, for every parameter at once, &quot;if I nudge this number up a little, does the loss
+go up or down, and by how much?&quot; The answer is the gradient. Every gradient-trained model in
+this catalog, from the trained bigram model in L1-06 to TinyLM, uses it.</p>
+<p>You won't compute gradients by hand for real models: software does it. But when training goes
+wrong (the loss explodes, stalls, or turns into &quot;not a number&quot;), the cause is almost always
+visible in the gradients, and you can only read them if you know what they are.</p>
+</section><section class="lesson-section" id="-core-idea-everyone" data-depth="green"><h2>🟢 Core idea (everyone)</h2><h3 id="a-derivative-is-a-slope">A derivative is a slope</h3>
+<p>Take a simple loss that depends on one parameter <span class="math inline">w</span>:</p>
+<div class="math block">
+L(w) = (2w - 6)^2
+</div>
+<p>This is smallest, exactly 0, at <span class="math inline">w = 3</span>. Suppose <span class="math inline">w</span> is currently 1, so the loss is
+<span class="math inline">(2 - 6)^2 = 16</span>. Should you increase <span class="math inline">w</span> or decrease it?</p>
+<p>The <strong>derivative</strong> answers that. It's the slope of the function at a point: how much the output
+changes per unit change in the input, for a very small change. It's written <span class="math inline">\frac{dL}{dw}</span>,
+read &quot;d L by d w&quot;, or <span class="math inline">L'(w)</span>.</p>
+<p><img src="../img/curriculum/level-1-foundations/04-derivatives-gradients-chain-rule/diagrams/tangent_slope.png" alt="A U-shaped curve of loss L(w) = (2w - 6) squared against parameter w from 0 to 5. At w = 1 the loss is 16, marked with a dot and a dashed tangent line with slope -16. The minimum is at w = 3, where the loss is 0 and the slope is 0" /></p>
+<p><em>At w = 1 the curve slopes steeply downwards, so increasing w lowers the loss; at the minimum the slope is zero.</em></p>
+<p>The dashed line just touches the curve at <span class="math inline">w = 1</span>. It's called the <strong>tangent line</strong>, and its
+slope is the derivative there: <span class="math inline">-16</span>. Two things to read from it:</p>
+<ul>
+<li><strong>The sign says which way is downhill.</strong> A negative slope means increasing <span class="math inline">w</span> lowers <span class="math inline">L</span>.</li>
+<li><strong>The size says how steep it is.</strong> A slope of <span class="math inline">-16</span> means a tiny step of 0.01 to the right
+lowers <span class="math inline">L</span> by about 0.16.</li>
+</ul>
+<p>At the minimum the slope is 0: the curve is flat, and there's no downhill direction left.
+Training is, at heart, &quot;follow the slope downhill until it's flat&quot;.</p>
+<h3 id="estimate-it-by-nudging">Estimate it by nudging</h3>
+<p>You don't need calculus rules to get a derivative. Nudge the input by a small step <span class="math inline">h</span> and
+measure the change:</p>
+<div class="math block">
+\frac{dL}{dw} \approx \frac{L(w + h) - L(w)}{h}
+</div>
+<p>This is a <strong>finite difference</strong>. With <span class="math inline">w = 1</span> and <span class="math inline">h = 0.001</span>: <span class="math inline">L(1.001) = (2.002 - 6)^2 =
+15.984004</span>, so the slope is about <span class="math inline">(15.984004 - 16) / 0.001 = -15.996</span>. Close to <span class="math inline">-16</span>, and closer
+as <span class="math inline">h</span> shrinks. The exact derivative is the value this ratio approaches as <span class="math inline">h</span> shrinks towards 0.</p>
+<h3 id="many-inputs-partial-derivatives-and-the-gradient">Many inputs: partial derivatives and the gradient</h3>
+<p>Real losses depend on many parameters at once. Take a function of two inputs:</p>
+<div class="math block">
+g(x, y) = x^2 + 3xy
+</div>
+<p>A <strong>partial derivative</strong> is the slope in one input's direction, with all the others held still.
+It's written with a curly <span class="math inline">\partial</span>: <span class="math inline">\frac{\partial g}{\partial x}</span> is the slope as <span class="math inline">x</span>
+changes and <span class="math inline">y</span> stays fixed. At the point <span class="math inline">(1, 2)</span>:</p>
+<ul>
+<li>Holding <span class="math inline">y = 2</span>, <span class="math inline">g = x^2 + 6x</span>, whose slope is <span class="math inline">2x + 6 = 8</span> at <span class="math inline">x = 1</span>.</li>
+<li>Holding <span class="math inline">x = 1</span>, <span class="math inline">g = 1 + 3y</span>, whose slope is <span class="math inline">3</span>.</li>
+</ul>
+<p>Collect all the partial derivatives into a vector (L1-01) and you have the <strong>gradient</strong>, written
+<span class="math inline">\nabla g</span> (&quot;nabla g&quot; or &quot;grad g&quot;):</p>
+<div class="math block">
+\nabla g(1, 2) = \left( \frac{\partial g}{\partial x}, \frac{\partial g}{\partial y} \right) = (8, 3)
+</div>
+<p>The gradient points in the direction of steepest <em>increase</em>. So to lower a loss, step in the
+opposite direction, <span class="math inline">-\nabla L</span>. That's <strong>gradient descent</strong>, and L1-05 builds it.</p>
+<p><strong>An analogy.</strong> You're standing on a hillside in thick fog and want to reach the valley. You
+can't see the valley, but you can feel the slope under your feet in every direction. The gradient
+is that feeling: it tells you which way is steepest uphill, and you walk the other way.</p>
+<p><strong>Where the analogy breaks down:</strong> a hillside has two directions to feel, and a model has millions
+or billions. And you can't actually &quot;feel&quot; a model's slopes for free: computing them takes real
+work, which is what the chain rule and backpropagation make affordable.</p>
+<h3 id="the-chain-rule-slopes-of-steps-multiply">The chain rule: slopes of steps multiply</h3>
+<p>Big functions are built from small steps. <span class="math inline">L(w) = (2w - 6)^2</span> is two steps: first compute
+<span class="math inline">u = 2w - 6</span>, then <span class="math inline">L = u^2</span>. The <strong>chain rule</strong> says the slope of the whole is the product of the
+slopes of the steps:</p>
+<div class="math block">
+\frac{dL}{dw} = \frac{dL}{du} \times \frac{du}{dw}
+</div>
+<p>Each step's slope is easy on its own:</p>
+<ul>
+<li><span class="math inline">u = 2w - 6</span> changes by 2 for each unit of <span class="math inline">w</span>, so <span class="math inline">\frac{du}{dw} = 2</span>.</li>
+<li><span class="math inline">L = u^2</span> has slope <span class="math inline">2u</span>, which at <span class="math inline">u = -4</span> is <span class="math inline">-8</span>.</li>
+</ul>
+<p>Multiply: <span class="math inline">\frac{dL}{dw} = -8 \times 2 = -16</span>, the same slope as the tangent line.</p>
+<p>It makes intuitive sense. If nudging <span class="math inline">w</span> moves <span class="math inline">u</span> twice as far, and nudging <span class="math inline">u</span> moves <span class="math inline">L</span> eight
+times as far (downwards), then nudging <span class="math inline">w</span> moves <span class="math inline">L</span> sixteen times as far (downwards). Slopes
+compound like exchange rates: dollars to euros to yen is the product of the two rates.</p>
+<p><strong>Where the analogy breaks down:</strong> an exchange rate is the same whatever amount you convert, but a
+local slope changes from point to point (<span class="math inline">2u</span> depends on <span class="math inline">u</span>). That's why the backward pass needs
+the values from the forward pass.</p>
+<p>A neural network is the same idea with thousands of steps. The chain rule lets you get the slope
+of the final loss with respect to any parameter, however deep inside it sits, by multiplying
+local slopes along the way.</p>
+</section><section class="lesson-section" id="-how-it-works-practitioner" data-depth="yellow"><h2>🟡 How it works (practitioner)</h2><h3 id="finite-differences-in-code">Finite differences in code</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/04-derivatives-gradients-chain-rule/code/derivatives.py">code/derivatives.py</a> estimates the derivative of <span class="math inline">f(x) = x^3</span> at <span class="math inline">x = 2</span>,
+where the exact answer is <span class="math inline">3x^2 = 12</span>. Run it from this lesson's folder:</p>
+<pre><code class="language-bash">python code/derivatives.py
+</code></pre>
+<p>It compares two ways of nudging:</p>
+<pre><code class="language-python">def forward_difference(func, x, h):
+    return (func(x + h) - func(x)) / h
+
+def central_difference(func, x, h):
+    return (func(x + h) - func(x - h)) / (2 * h)
+</code></pre>
+<p>The <strong>central difference</strong> takes a step each way and measures across both:</p>
+<pre><code class="language-text">     h       forward    error       central    error
+  0.1       12.61000  6.1e-01    12.01000  1.0e-02
+  0.01      12.06010  6.0e-02    12.00010  1.0e-04
+  0.001     12.00600  6.0e-03    12.00000  1.0e-06
+</code></pre>
+<p>Shrinking <span class="math inline">h</span> by 10 shrinks the forward difference's error by 10, but the central difference's by
+100. The central difference's errors on the two sides largely cancel, which is why gradient
+checking uses it.</p>
+<h3 id="smaller-isnt-always-better">Smaller isn't always better</h3>
+<p>So why not use <span class="math inline">h = 10^{-14}</span>? The next part of the output answers that:</p>
+<pre><code class="language-text">smaller is not always better (central difference):
+  h = 1e-02   error 1.0e-04
+  h = 1e-05   error 2.1e-10
+  h = 1e-08   error 7.3e-08
+  h = 1e-11   error 9.9e-07
+  h = 1e-14   error 1.2e-01
+</code></pre>
+<p>The error falls until about <span class="math inline">h = 10^{-5}</span> and then rises again. A computer stores about 16
+significant digits. When <span class="math inline">h</span> is tiny, <span class="math inline">f(x + h)</span> and <span class="math inline">f(x - h)</span> agree in almost all of those
+digits, and subtracting them leaves mostly rounding noise, which is then divided by the tiny
+<span class="math inline">2h</span> and magnified. Two errors pull in opposite directions: the formula's error (big <span class="math inline">h</span>) and
+rounding error (small <span class="math inline">h</span>). For central differences in 64-bit floats, <span class="math inline">h</span> around <span class="math inline">10^{-5}</span> to
+<span class="math inline">10^{-6}</span> is a good default.</p>
+<h3 id="gradients-in-code">Gradients in code</h3>
+<p><code>numerical_gradient</code> nudges each input in turn, holding the others still, which is exactly the
+definition of a partial derivative:</p>
+<pre><code class="language-python">def numerical_gradient(func, point, h=1e-5):
+    grad = np.zeros_like(point, dtype=float)
+    for i in range(len(point)):
+        step = np.zeros_like(point, dtype=float)
+        step[i] = h
+        grad[i] = (func(point + step) - func(point - step)) / (2 * h)
+    return grad
+</code></pre>
+<pre><code class="language-text">g(x, y) = x^2 + 3xy at (1, 2):
+  gradient by hand:      [8. 3.]
+  gradient by nudging:   [8. 3.]
+</code></pre>
+<p>Notice the cost: two function evaluations <em>per input</em>. For a model with a billion parameters,
+that's two billion evaluations of the whole model for one gradient. Numerical gradients are for
+<em>checking</em>, never for training.</p>
+<h3 id="computational-graphs-forward-pass-and-backward-pass">Computational graphs: forward pass and backward pass</h3>
+<p>The cheap way to get gradients is to apply the chain rule systematically. Draw the function as a
+<strong>computational graph</strong>: each box is one simple step, and arrows show which values feed which
+steps.</p>
+<p><img src="../img/curriculum/level-1-foundations/04-derivatives-gradients-chain-rule/diagrams/chain_graph.png" alt="Two rows of three boxes. The top row is the forward pass: w with value 1, then u = 2w - 6 with value -4, then L = u squared with value 16, joined by arrows labelled forward. The bottom row is the backward pass, running right to left: dL/dL = 1 at the output, then dL/du = -8 from multiplying by local slope 2u, then dL/dw = -16 from multiplying by local slope 2" /></p>
+<p><em>The forward pass computes and remembers each value; the backward pass starts from 1 at the output and multiplies by each step's local slope.</em></p>
+<p>Two passes:</p>
+<ol>
+<li><strong>Forward pass.</strong> Compute each step from left to right, and remember every intermediate value
+(<span class="math inline">u = -4</span>). The backward pass needs them.</li>
+<li><strong>Backward pass.</strong> Start at the output with <span class="math inline">\frac{dL}{dL} = 1</span>. Move right to left,
+multiplying by each step's <strong>local derivative</strong>: the slope of that one step with respect to its
+own input, using the values remembered from the forward pass.</li>
+</ol>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/04-derivatives-gradients-chain-rule/code/chain_rule_by_hand.py">code/chain_rule_by_hand.py</a> does exactly this, step by step:</p>
+<pre><code class="language-python">u = 2 * w - 6          # forward: inner step
+loss = u ** 2          # forward: outer step
+dloss_du = 2 * u       # backward: local slope of u^2
+du_dw = 2              # backward: local slope of 2w - 6
+dloss_dw = dloss_du * du_dw
+</code></pre>
+<pre><code class="language-text">Part 1: L(w) = (2w - 6)^2 at w = 1
+  forward:  u = 2w - 6 = -4.0   L = u^2 = 16.0
+  backward: dL/du = 2u = -8.0   du/dw = 2   dL/dw = -16.0
+  numerical check: -16.000000
+</code></pre>
+<h3 id="a-real-model-in-miniature">A real model in miniature</h3>
+<p>Part 2 of the same file is a model with two parameters: it predicts <span class="math inline">z = wx + b</span> from an input <span class="math inline">x</span>
+(a weight <span class="math inline">w</span> and a <strong>bias</strong> <span class="math inline">b</span>, a constant added on; this bias is just a parameter, unrelated
+to the unfairness meaning of bias in L0-04), and its loss is the squared error against
+the correct answer <span class="math inline">y</span>:</p>
+<div class="math block">
+L(w, b) = (wx + b - y)^2
+</div>
+<p>With one training example, <span class="math inline">x = 2</span> and <span class="math inline">y = 7</span>, and current parameters <span class="math inline">w = 1</span>, <span class="math inline">b = 0.5</span>:</p>
+<pre><code class="language-text">Part 2: L(w, b) = (w*x + b - y)^2 with x = 2, y = 7, w = 1, b = 0.5
+  forward:  prediction z = 2.5   error r = -4.5   L = 20.25
+  backward: dL/dr = -9.0   dL/dw = -18.0   dL/db = -9.0
+  numerical check: dL/dw = -18.000000   dL/db = -9.000000
+  one step downhill (step size 0.05): w = 1.90, b = 0.95, L = 5.0625
+</code></pre>
+<p>The backward pass shares work. <span class="math inline">\frac{dL}{dr} = 2r = -9</span> is computed once and reused for both
+parameters: <span class="math inline">\frac{dL}{dw} = -9 \times x = -18</span> and <span class="math inline">\frac{dL}{db} = -9 \times 1 = -9</span>. The
+gradient <span class="math inline">(-18, -9)</span> says both parameters should go up. One step against the gradient (scaled by
+a step size of 0.05) cuts the loss from 20.25 to about 5.06. That's one step of training. L1-05
+repeats it until the loss stops falling.</p>
+<h3 id="common-pitfalls">Common pitfalls</h3>
+<ul>
+<li><strong>Forgetting to remember forward values.</strong> Local derivatives like <span class="math inline">2u</span> need the value of <span class="math inline">u</span>
+from the forward pass. Autograd systems (software that computes gradients automatically, built in L1-08) store these, which is why training uses much more
+memory than just running a model.</li>
+<li><strong>Sign errors.</strong> The gradient points uphill. Training steps go in the <em>negative</em> gradient
+direction.</li>
+<li><strong>Using the wrong <span class="math inline">h</span>.</strong> Too large and the formula's error dominates; too small and rounding
+dominates. Use central differences with <span class="math inline">h</span> around <span class="math inline">10^{-5}</span>.</li>
+<li><strong>Comparing absolute errors.</strong> A difference of 0.001 is tiny for a gradient of 1,000 and huge
+for a gradient of 0.001. Compare <strong>relative error</strong> instead (the exercise does).</li>
+<li><strong>Trusting a gradient you haven't checked.</strong> A wrong gradient doesn't crash anything. Training
+just goes badly, which is much harder to diagnose. Check new gradient code numerically, once,
+on small inputs.</li>
+</ul>
+</section><section class="lesson-section" id="-going-deeper-expert" data-depth="red"><h2>🔴 Going deeper (expert)</h2><h3 id="jacobians-when-outputs-are-vectors-too">Jacobians: when outputs are vectors too</h3>
+<p>A function from <span class="math inline">n</span> inputs to <span class="math inline">m</span> outputs has <span class="math inline">m \times n</span> partial derivatives: how each output
+changes with each input. Arranged in a matrix, they form the <strong>Jacobian</strong>, <span class="math inline">J_{ij} =
+\frac{\partial y_i}{\partial x_j}</span>. The gradient is the special case <span class="math inline">m = 1</span>. For a chain of
+vector-valued steps, the chain rule becomes a product of Jacobians: <span class="math inline">J_{\text{total}} = J_k \cdots
+J_2 J_1</span>, a sequence of matrix–matrix products (L1-01).</p>
+<h3 id="forward-mode-and-reverse-mode">Forward mode and reverse mode</h3>
+<p>That product can be evaluated in either order. Multiplying from the input side is <strong>forward-mode
+differentiation</strong>: one pass gives the derivatives of all outputs with respect to <em>one</em> input.
+Multiplying from the output side is <strong>reverse-mode</strong> differentiation: one pass gives the
+derivatives of <em>one</em> output with respect to all inputs.</p>
+<p>A training loss is one output depending on millions or billions of parameters, so reverse mode
+wins by a huge margin. A well-known result in automatic differentiation is that the reverse pass
+costs a small constant multiple of the forward pass, independent of the number of parameters.
+That's why training is affordable at all. Reverse-mode differentiation applied to neural networks
+is called backpropagation (named in L0-03), and its use for training multi-layer networks was popularized by
+Rumelhart, Hinton and Williams in 1986. L1-08 builds a tiny reverse-mode autograd engine.</p>
+<p>The price is memory: reverse mode must keep the forward pass's intermediate values until the
+backward pass uses them. Techniques like gradient checkpointing trade extra computation (redoing
+parts of the forward pass) for less memory.</p>
+<h3 id="choosing-h-more-precisely">Choosing h, more precisely</h3>
+<p>The forward difference's formula error shrinks in proportion to <span class="math inline">h</span>; the central difference's in
+proportion to <span class="math inline">h^2</span>. Rounding error grows roughly in proportion to <span class="math inline">\varepsilon / h</span>, where
+<span class="math inline">\varepsilon \approx 2.2 \times 10^{-16}</span> is the gap between 1 and the next 64-bit float. Balancing
+the two terms puts the best <span class="math inline">h</span> for central differences near <span class="math inline">\varepsilon^{1/3} \approx 6 \times
+10^{-6}</span>, which matches the minimum in the table above. For forward differences, the balance is
+near <span class="math inline">\sqrt{\varepsilon} \approx 1.5 \times 10^{-8}</span>, with a much larger best-case error.</p>
+<h3 id="kinks-vanishing-and-exploding">Kinks, vanishing and exploding</h3>
+<ul>
+<li><strong>Kinks.</strong> Many networks use ReLU, <span class="math inline">\max(0, x)</span>, whose slope is 0 for negative inputs and 1 for
+positive ones, with a corner at 0. There, the derivative doesn't exist; software simply picks a
+value (usually 0). Gradient checks near a kink can fail spuriously, because the two nudges land
+on different sides of the corner.</li>
+<li><strong>Products of many slopes.</strong> The backward pass multiplies one local slope per step. Through 50
+steps, slopes of 0.5 give <span class="math inline">0.5^{50} \approx 10^{-15}</span> (a <strong>vanishing gradient</strong>: early
+parameters barely learn), and slopes of 1.5 give <span class="math inline">1.5^{50} \approx 6 \times 10^8</span> (an
+<strong>exploding gradient</strong>: training diverges). Residual connections, normalization and careful
+initialization (L1-09, L2-05) exist largely to keep this product near 1.</li>
+</ul>
+<h3 id="the-gradient-of-softmax-plus-cross-entropy">The gradient of softmax plus cross-entropy</h3>
+<p>Part 3 of <code>chain_rule_by_hand.py</code> takes scores <span class="math inline">z</span>, applies softmax (L1-02) to get probabilities
+<span class="math inline">p</span>, and computes the cross-entropy loss <span class="math inline">-\ln p_{\text{target}}</span> (L1-03). Chaining the
+derivatives of the logarithm and the softmax gives a remarkably simple result:</p>
+<div class="math block">
+\frac{\partial L}{\partial z_i} = p_i - y_i
+</div>
+<p>Here <span class="math inline">y</span> is a <strong>one-hot vector</strong>: 1 at the position of the true outcome, 0 everywhere else.</p>
+<pre><code class="language-text">Part 3: softmax then cross-entropy, scores [2.0, 1.0, 0.5], true outcome 0
+  p = softmax(scores) = [0.629 0.231 0.14 ]   loss = 0.464 nats
+  gradient p - y:      [-0.371  0.231  0.14 ]
+  numerical check:     [-0.371  0.231  0.14 ]
+</code></pre>
+<p>Read it as: raise the true outcome's score (its gradient is negative), and lower every other
+score in proportion to the probability it wrongly took. This is the gradient at the output of
+every language model during training, so you'll meet it again in L1-06 and L1-08.</p>
+</section><section class="lesson-section" id="common-misconceptions"><h2>Common misconceptions</h2><ul>
+<li><strong>Myth:</strong> The gradient points towards the minimum.
+<strong>Reality:</strong> It points in the direction of steepest <em>increase</em> from where you stand, locally.
+Its negative is locally steepest downhill, which need not aim at the lowest point.</li>
+<li><strong>Myth:</strong> Computers find derivatives by nudging each parameter.
+<strong>Reality:</strong> That's far too slow for training. Frameworks apply the chain rule exactly, in
+reverse mode. Nudging is only used to check that code.</li>
+<li><strong>Myth:</strong> A gradient of zero means you've found the best parameters.
+<strong>Reality:</strong> It means the surface is flat there. That can be a minimum, a maximum, a saddle
+point (uphill in some directions, downhill in others), or a plateau.</li>
+<li><strong>Myth:</strong> Backpropagation is a special neural-network algorithm.
+<strong>Reality:</strong> It's the chain rule, applied from the output backwards, reusing shared work. The
+same technique differentiates any program built from differentiable steps.</li>
+</ul>
+</section><section class="lesson-section" id="hands-on-exercise"><h2>Hands-on exercise</h2><p><strong>Goal:</strong> build a gradient checker, and use it to find a buggy hand-written gradient.</p>
+<p>Open <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/04-derivatives-gradients-chain-rule/exercises/check_my_gradient.py">exercises/check_my_gradient.py</a>. It has four functions, each
+with a gradient derived by hand, and one of those gradients is wrong. Complete
+<code>numerical_gradient()</code> (central differences) and <code>relative_error()</code>, run the file, and find the
+bug by redoing that derivative yourself.</p>
+<p>You've succeeded when exactly one function is flagged and you can say what's wrong with it.</p>
+<details>
+<summary>Solution</summary>
+<p>The full solution is in
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/04-derivatives-gradients-chain-rule/exercises/solutions/check_my_gradient.py">exercises/solutions/check_my_gradient.py</a>:</p>
+<pre><code class="language-python">def numerical_gradient(func, w, h=1e-5):
+    grad = np.zeros_like(w)
+    for i in range(len(w)):
+        step = np.zeros_like(w)
+        step[i] = h
+        grad[i] = (func(w + step) - func(w - step)) / (2 * h)
+    return grad
+
+def relative_error(a, b):
+    return float(np.linalg.norm(a - b) / max(np.linalg.norm(a) + np.linalg.norm(b), 1e-12))
+</code></pre>
+<pre><code class="language-text">sum_of_squares         relative error below 1e-9   ok
+wave                   relative error below 1e-9   ok
+growth                 relative error 2.6e-01      WRONG
+softmax_cross_entropy  relative error below 1e-9   ok
+</code></pre>
+<p><code>growth</code> is <span class="math inline">e^{w_0 w_1}</span>. By the chain rule, with inner step <span class="math inline">u = w_0 w_1</span>:
+<span class="math inline">\frac{\partial}{\partial w_1} = e^{u} \times \frac{\partial u}{\partial w_1} = w_0 e^{w_0 w_1}</span>.
+The hand-written gradient forgot the inner factor <span class="math inline">w_0</span> in the second entry, a very common
+chain-rule mistake. The fix is <code>return np.array([w[1] * e, w[0] * e])</code>.</p>
+<p>For the stretch task: with <span class="math inline">h = 10^{-2}</span>, the formula's own error grows. <code>wave</code> and
+<code>softmax_cross_entropy</code> rise to a few times <span class="math inline">10^{-6}</span>, just over the script's <span class="math inline">10^{-6}</span> threshold,
+so they print <code>WRONG</code> even though they're right. <code>sum_of_squares</code> stays tiny, because the central
+difference is exact for a quadratic. With <span class="math inline">h = 10^{-12}</span>, rounding noise takes over and every
+correct gradient lands around <span class="math inline">10^{-5}</span> to <span class="math inline">10^{-4}</span> (the exact values vary by machine), also
+flagged. Even so, all of them stay more than a thousand times below the buggy gradient's 0.26.
+A threshold only means something for a sensible <span class="math inline">h</span>; with a bad one, look at how far apart the
+errors are.</p>
+</details>
+</section><section class="lesson-section" id="check-your-understanding"><h2>Check your understanding</h2><div class="quiz" data-lesson="L1-04" data-count="5"><ol class="questions"><li class="question" data-kind="single" data-answer="C"><div class="q-text">At <span class="math inline">w = 4</span>, what is the derivative of <span class="math inline">L(w) = (2w - 6)^2</span>?</div><fieldset><legend class="visually-hidden">Options for question 1</legend><label class="option"><input type="radio" name="L1-04-q1" value="A"><span class="letter">A.</span> <span>4</span></label><label class="option"><input type="radio" name="L1-04-q1" value="B"><span class="letter">B.</span> <span>8</span></label><label class="option"><input type="radio" name="L1-04-q1" value="C"><span class="letter">C.</span> <span>16</span></label><label class="option"><input type="radio" name="L1-04-q1" value="D"><span class="letter">D.</span> <span>−16</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>C.</strong> With <span class="math inline">u = 2w - 6 = 2</span>: <span class="math inline">\frac{dL}{du} = 2u = 4</span> and <span class="math inline">\frac{du}{dw} = 2</span>, so
+<span class="math inline">\frac{dL}{dw} = 4 \times 2 = 16</span>. A forgets to multiply by the inner slope, B doubles the loss value
+<span class="math inline">L(4) = 4</span> instead of finding a slope, and D is the slope at <span class="math inline">w = 1</span>, on the other side of the minimum.</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,B,D"><div class="q-text">Which of these are true of the gradient of a loss? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 2</legend><label class="option"><input type="checkbox" name="L1-04-q2" value="A"><span class="letter">A.</span> <span>It has one entry per parameter</span></label><label class="option"><input type="checkbox" name="L1-04-q2" value="B"><span class="letter">B.</span> <span>It points in the direction that increases the loss fastest</span></label><label class="option"><input type="checkbox" name="L1-04-q2" value="C"><span class="letter">C.</span> <span>Training takes a step in the direction of the gradient</span></label><label class="option"><input type="checkbox" name="L1-04-q2" value="D"><span class="letter">D.</span> <span>It's zero at a minimum of a smooth loss</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, B, D.</strong> The gradient collects one partial derivative per parameter (A), points uphill
+(B), and is zero where the surface is flat, including at a minimum (D). C is backwards:
+training steps against the gradient, downhill.</p>
+</div></li><li class="question" data-kind="single" data-answer="B"><div class="q-text">Why does gradient checking use a central difference with <span class="math inline">h \approx 10^{-5}</span>, rather than <span class="math inline">h = 10^{-14}</span>?</div><fieldset><legend class="visually-hidden">Options for question 3</legend><label class="option"><input type="radio" name="L1-04-q3" value="A"><span class="letter">A.</span> <span>Smaller steps are slower to compute</span></label><label class="option"><input type="radio" name="L1-04-q3" value="B"><span class="letter">B.</span> <span>With a tiny <span class="math inline">h</span>, rounding error in the subtraction swamps the result</span></label><label class="option"><input type="radio" name="L1-04-q3" value="C"><span class="letter">C.</span> <span>The central difference only works for large <span class="math inline">h</span></span></label><label class="option"><input type="radio" name="L1-04-q3" value="D"><span class="letter">D.</span> <span><span class="math inline">h = 10^{-14}</span> can't be stored as a 64-bit float</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> With a tiny step, <span class="math inline">f(x + h)</span> and <span class="math inline">f(x - h)</span> agree in nearly all their digits, so their
+difference is mostly rounding noise, which dividing by <span class="math inline">2h</span> magnifies. The lesson's output
+shows an error of 0.12 at <span class="math inline">h = 10^{-14}</span>. A is false (the cost doesn't depend on <span class="math inline">h</span>), C is
+false, and D is false: 64-bit floats can store values down to about <span class="math inline">10^{-308}</span>.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text">A model has 10 million parameters. Roughly how many evaluations of the loss would a numerical gradient need, and how does backpropagation avoid this?</div><label class="visually-hidden" for="L1-04-q4-text">Your answer</label><textarea id="L1-04-q4-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>Central differences need two evaluations per parameter, so about 20 million evaluations of the
+whole loss for one gradient. Backpropagation instead does one forward pass, remembering
+intermediate values, and one backward pass that applies the chain rule from the loss back to
+every parameter, reusing shared work. That costs a small constant multiple of a single forward
+pass, no matter how many parameters there are.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text"><strong>Explain it to a colleague:</strong> in plain language, what is the chain rule, and why does it matter for training neural networks?</div><label class="visually-hidden" for="L1-04-q5-text">Your answer</label><textarea id="L1-04-q5-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>When a calculation is built from steps, the rate at which the final result changes with an
+input is the product of the rates of each step along the way, like converting currency through
+two exchange rates. A neural network is a long chain of simple steps ending in a loss. The chain
+rule lets us work out, for every parameter, how the loss would change if we nudged that
+parameter, by multiplying local slopes backwards from the loss. That gradient tells training
+which way to adjust each parameter, and doing it backwards in one pass is what makes it cheap
+enough to train models with billions of parameters.</p>
+</div></li></ol><p class="quiz-score" aria-live="polite"></p></div></section><section class="lesson-section" id="key-terms"><h2>Key terms</h2><ul>
+<li><a href="../glossary.html#backpropagation">Backpropagation</a></li>
+<li><a href="../glossary.html#bias-parameter">Bias (parameter)</a></li>
+<li><a href="../glossary.html#central-difference">Central difference</a></li>
+<li><a href="../glossary.html#chain-rule">Chain rule</a></li>
+<li><a href="../glossary.html#computational-graph">Computational graph</a></li>
+<li><a href="../glossary.html#derivative">Derivative</a></li>
+<li><a href="../glossary.html#exploding-gradient">Exploding gradient</a></li>
+<li><a href="../glossary.html#finite-difference">Finite difference</a></li>
+<li><a href="../glossary.html#forward-pass">Forward pass</a></li>
+<li><a href="../glossary.html#forward-mode-differentiation">Forward-mode differentiation</a></li>
+<li><a href="../glossary.html#gradient">Gradient</a></li>
+<li><a href="../glossary.html#gradient-checking">Gradient checking</a></li>
+<li><a href="../glossary.html#gradient-descent">Gradient descent</a></li>
+<li><a href="../glossary.html#jacobian">Jacobian</a></li>
+<li><a href="../glossary.html#local-derivative">Local derivative</a></li>
+<li><a href="../glossary.html#one-hot-vector">One-hot vector</a></li>
+<li><a href="../glossary.html#partial-derivative">Partial derivative</a></li>
+<li><a href="../glossary.html#relative-error">Relative error</a></li>
+<li><a href="../glossary.html#reverse-mode-differentiation">Reverse-mode differentiation</a></li>
+<li><a href="../glossary.html#tangent-line">Tangent line</a></li>
+<li><a href="../glossary.html#vanishing-gradient">Vanishing gradient</a></li>
+</ul>
+</section><section class="lesson-section" id="further-reading"><h2>Further reading</h2><ul>
+<li>🟢 <strong>Essence of Calculus</strong> — 3Blue1Brown (G. Sanderson). Free animated video series on
+derivatives and the chain rule. <a href="https://www.3blue1brown.com/topics/calculus">https://www.3blue1brown.com/topics/calculus</a></li>
+<li>🟡 <strong>Mathematics for Machine Learning</strong> — M. P. Deisenroth, A. A. Faisal and C. S. Ong (2020).
+Chapter 5, &quot;Vector Calculus&quot;, covers gradients, Jacobians and backpropagation.
+<a href="https://mml-book.github.io/">https://mml-book.github.io/</a></li>
+<li>🟡 <strong>CS231n course notes: Backpropagation, Intuitions</strong> — Stanford University. Computational
+graphs and backward passes worked through small examples.
+<a href="https://cs231n.github.io/optimization-2/">https://cs231n.github.io/optimization-2/</a></li>
+<li>🔴 <strong>Automatic Differentiation in Machine Learning: a Survey</strong> — A. G. Baydin, B. A.
+Pearlmutter, A. A. Radul and J. M. Siskind (2018). <em>Journal of Machine Learning Research</em>, 18.
+Forward and reverse mode, and how frameworks implement them. <a href="https://arxiv.org/abs/1502.05767">https://arxiv.org/abs/1502.05767</a></li>
+<li>🔴 <strong>Evaluating Derivatives</strong> — A. Griewank and A. Walther (2nd ed., 2008). SIAM. The standard
+reference on automatic differentiation, including the cost of reverse mode.</li>
+<li>🔴 <strong>Learning representations by back-propagating errors</strong> — D. E. Rumelhart, G. E. Hinton and
+R. J. Williams (1986). <em>Nature</em>, 323, 533–536.</li>
+</ul>
+</section><section class="lesson-section" id="next"><h2>Next</h2><ul>
+<li><strong>Next lesson:</strong> L1-05 Learning from Data: Loss, Gradient Descent and Generalization (coming
+in Module 1B).</li>
+<li><strong>Related:</strong> L1-08 builds a tiny autograd engine that automates the backward pass. L1-09 covers
+initialization and normalization, which tame vanishing and exploding gradients.</li>
+</ul>
+</section>
+    <div class="complete-box">
+      <button type="button" class="btn primary mark-complete" data-lesson="L1-04">Mark lesson as complete</button>
+      <p class="complete-status" aria-live="polite"></p>
+    </div>
+    <nav class="pager" aria-label="Lesson navigation"><a class="pager-prev" href="L1-03.html" rel="prev"><small>Previous</small>L1-03 Information Basics: Entropy, Cross-Entropy, Perplexity, KL</a><span class="pager-next disabled"><small>Next (coming soon)</small>L1-05 Learning from Data: Loss, Gradient Descent and Generalization</span></nav>
+  </article>
+</div>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="../about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>

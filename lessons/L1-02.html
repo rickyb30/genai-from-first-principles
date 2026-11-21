@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probability for Generative Models · Generative AI from First Principles</title>
+<meta name="description" content="A generative model doesn&#x27;t produce one fixed answer. It produces a set of probabilities for what could come next, picks one at random according to those probabilities, and repeats. This lesson builds that loop from scratch with Brindlewick&#x27;s weather: count what follows what, turn the counts into pro">
+<link rel="stylesheet" href="../style.css?v=2026-11-20">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css">
+<script defer src="../vendor/katex/katex.min.js"></script>
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="../data.js?v=2026-11-20"></script>
+<script defer src="../app.js?v=2026-11-20"></script>
+</head>
+<body data-root="../">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="../index.html">Home</a></li>
+<li><a href="../curriculum.html">Curriculum</a></li>
+<li><a href="../paths.html">Learning paths</a></li>
+<li><a href="../glossary.html">Glossary & flashcards</a></li>
+<li><a href="../progress.html">Progress</a></li>
+<li><a href="../about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<div class="lesson-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol><li class=""><a href="#learning-objectives">Learning objectives</a></li><li class=""><a href="#why-this-matters">Why this matters</a></li><li class="green"><a href="#-core-idea-everyone"><span class="depth-dot green" aria-hidden="true"></span>Core idea (everyone)</a></li><li class="yellow"><a href="#-how-it-works-practitioner"><span class="depth-dot yellow" aria-hidden="true"></span>How it works (practitioner)</a></li><li class="red"><a href="#-going-deeper-expert"><span class="depth-dot red" aria-hidden="true"></span>Going deeper (expert)</a></li><li class=""><a href="#common-misconceptions">Common misconceptions</a></li><li class=""><a href="#hands-on-exercise">Hands-on exercise</a></li><li class=""><a href="#check-your-understanding">Check your understanding</a></li><li class=""><a href="#key-terms">Key terms</a></li><li class=""><a href="#further-reading">Further reading</a></li><li class=""><a href="#next">Next</a></li></ol>
+  </aside>
+  <article class="lesson" data-lesson="L1-02">
+    <p class="breadcrumb"><a href="../curriculum.html#level-1">Level 1</a> · Module 1A The math generative models run on</p>
+    <h1>Probability for Generative Models</h1>
+    <div class="tldr"><strong>TL;DR</strong> A generative model doesn't produce one fixed answer. It produces a set of probabilities for what could come next, picks one at random according to those probabilities, and repeats. This lesson builds that loop from scratch with Brindlewick's weather: count what follows what, turn the counts into probabilities, sample, and score whole sequences with the chain rule.</div>
+    <ul class="meta">
+      <li><span aria-hidden="true">⏱</span> 45 min</li>
+      <li>Prerequisites: <a href="L0-06.html">L0-06</a></li>
+      <li>Last reviewed: 2026-11-20</li>
+      <li><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/02-probability-for-generative-models/README.md">View source on GitHub</a></li>
+    </ul>
+    <div class="depth-filter" role="group" aria-label="Reading depth">
+      <span class="depth-label">Reading depth:</span>
+      <button type="button" data-depth="green" aria-pressed="false"><span class="depth-dot green" aria-hidden="true"></span> Core</button>
+      <button type="button" data-depth="yellow" aria-pressed="false"><span class="depth-dot yellow" aria-hidden="true"></span> + Practitioner</button>
+      <button type="button" data-depth="red" aria-pressed="true"><span class="depth-dot red" aria-hidden="true"></span> + Expert</button>
+    </div>
+    <section class="lesson-section" id="learning-objectives"><h2>Learning objectives</h2><p>By the end you will be able to:</p>
+<ol>
+<li><strong>Compute</strong> joint, marginal and conditional probabilities from a table of counts.</li>
+<li><strong>Compute</strong> the probability of a whole sequence with the chain rule, using log-probabilities.</li>
+<li><strong>Implement</strong> sampling from a categorical distribution using one uniform random number.</li>
+<li><strong>Explain</strong> generation as repeated sampling from conditional distributions, and why the same
+model gives different outputs on different runs.</li>
+</ol>
+</section><section class="lesson-section" id="why-this-matters"><h2>Why this matters</h2><p>When you send the same prompt to a language model twice and get two different answers, you're
+seeing sampling. When a model scores how likely a sentence is, it's applying the chain rule. When
+someone reports that a model &quot;assigns low probability&quot; to a fact, they mean a conditional
+probability. Each of these is a small idea, and together they're the whole generation process.</p>
+<p>Misunderstanding them leads to real mistakes: reading a model's output as its single &quot;belief&quot;,
+expecting identical results from runs that sample, or multiplying thousands of small probabilities
+and getting exactly zero. This lesson covers the probability you need for the rest of the
+catalog, and nothing more.</p>
+</section><section class="lesson-section" id="-core-idea-everyone" data-depth="green"><h2>🟢 Core idea (everyone)</h2><h3 id="from-counts-to-probabilities">From counts to probabilities</h3>
+<p>L0-01 defined a probability distribution: how likely each possible outcome is, with all the
+probabilities adding up to 1. The simplest way to get one is to count.</p>
+<p>Brindlewick's weather station labels every day as sunny, cloudy or rain. Its log contains 100
+pairs of consecutive days, and each pair records today's weather and tomorrow's:</p>
+<table>
+<thead>
+<tr>
+<th>Today ↓ / Tomorrow →</th>
+<th>sunny</th>
+<th>cloudy</th>
+<th>rain</th>
+<th>Row total</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>sunny</strong></td>
+<td>35</td>
+<td>10</td>
+<td>5</td>
+<td>50</td>
+</tr>
+<tr>
+<td><strong>cloudy</strong></td>
+<td>10</td>
+<td>12</td>
+<td>8</td>
+<td>30</td>
+</tr>
+<tr>
+<td><strong>rain</strong></td>
+<td>5</td>
+<td>8</td>
+<td>7</td>
+<td>20</td>
+</tr>
+</tbody>
+</table>
+<p>From this one table you can read three different kinds of probability.</p>
+<p><strong>Joint probability</strong> is the chance that two things happen together. Of the 100 pairs, 5 were
+&quot;sunny today and rain tomorrow&quot;, so</p>
+<div class="math block">
+P(\text{today} = \text{sunny},\ \text{tomorrow} = \text{rain}) = \frac{5}{100} = 0.05
+</div>
+<p><span class="math inline">P(\ldots)</span> is read &quot;the probability of&quot;, and the comma is read &quot;and&quot;.</p>
+<p><strong>Marginal probability</strong> is the chance of one thing, whatever the other does. Add across a row:
+50 of 100 days were sunny, so <span class="math inline">P(\text{today} = \text{sunny}) = 0.5</span>. Likewise cloudy is 0.3 and
+rain is 0.2. (The name comes from writing these totals in the margin of the table.)</p>
+<p><strong>Conditional probability</strong> is the chance of one thing <em>given</em> that another is known. If today
+is sunny, look only at the sunny row: 5 of those 50 days were followed by rain.</p>
+<div class="math block">
+P(\text{tomorrow} = \text{rain} \mid \text{today} = \text{sunny}) = \frac{5}{50} = 0.1
+</div>
+<p>The bar <span class="math inline">\mid</span> is read &quot;given&quot;. Compare the rain row: if today is rainy, tomorrow is rainy with
+probability <span class="math inline">7/20 = 0.35</span>. Knowing today changes the forecast, from 0.1 to 0.35. That change is
+the whole point of a conditional probability, and it's what makes generation coherent: what comes
+next depends on what came before.</p>
+<p>Dividing every row by its total gives the full table of conditional probabilities. Each row is a
+distribution of its own, so each row adds up to 1:</p>
+<table>
+<thead>
+<tr>
+<th>Today ↓ / P(tomorrow) →</th>
+<th>sunny</th>
+<th>cloudy</th>
+<th>rain</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>sunny</strong></td>
+<td>0.700</td>
+<td>0.200</td>
+<td>0.100</td>
+</tr>
+<tr>
+<td><strong>cloudy</strong></td>
+<td>0.333</td>
+<td>0.400</td>
+<td>0.267</td>
+</tr>
+<tr>
+<td><strong>rain</strong></td>
+<td>0.250</td>
+<td>0.400</td>
+<td>0.350</td>
+</tr>
+</tbody>
+</table>
+<h3 id="sampling-making-a-random-choice-the-fair-way">Sampling: making a random choice the fair way</h3>
+<p>To generate tomorrow's weather, you don't just take the most likely option. You sample (L0-01): pick
+at random, so that each outcome comes up as often as its probability says. If today is sunny,
+you should pick sunny 70% of the time, cloudy 20% and rain 10%.</p>
+<p>A distribution over a fixed list of outcomes like this is called a <strong>categorical
+distribution</strong>. Here's how to sample from one, using nothing but a random number between 0 and 1.
+Lay the outcomes along a strip from 0 to 1, each taking up as much of the strip as its
+probability. Then drop a random number <span class="math inline">u</span> onto the strip. The strip below uses the overall
+weather mix from the counts table, <span class="math inline">P(\text{today})</span>: sunny 0.5, cloudy 0.3 and rain 0.2.</p>
+<p><img src="../img/curriculum/level-1-foundations/02-probability-for-generative-models/diagrams/sampling_strip.png" alt="A horizontal strip from 0 to 1 divided into three slices: sunny from 0 to 0.5, cloudy from 0.5 to 0.8, and rain from 0.8 to 1. Arrows show three random draws: u = 0.10 lands in sunny, u = 0.62 lands in cloudy, and u = 0.93 lands in rain" /></p>
+<p><em>Each outcome owns a slice of the strip as wide as its probability, so a uniformly random point lands in each slice exactly that often.</em></p>
+<p>The random number must be <strong>uniform</strong>: every value between 0 and 1 equally likely. Then it
+lands in the sunny slice half the time, because that slice is half the strip. The slice
+boundaries (0.5, 0.8 and 1) are running totals of the probabilities, called the <strong>cumulative
+distribution</strong>.</p>
+<p><strong>An analogy.</strong> Sampling is like a raffle where each outcome holds tickets in proportion to its
+probability: sunny holds 50 of 100 tickets, cloudy 30 and rain 20. You draw one ticket.</p>
+<p><strong>Where the analogy breaks down:</strong> a raffle has a whole number of tickets, so it can't represent a
+probability like 1/3 exactly, while a random point on a strip can. And in a real model, the
+&quot;ticket holders&quot; change on every draw, because the distribution depends on everything generated
+so far.</p>
+<h3 id="generation-is-repeated-sampling">Generation is repeated sampling</h3>
+<p>Now combine the two ideas. Start from today's weather, look up the conditional distribution for
+tomorrow, sample it, and treat the result as the new &quot;today&quot;. Repeat.</p>
+<p><img src="../img/curriculum/level-1-foundations/02-probability-for-generative-models/diagrams/generation_loop.png" alt="A loop of four boxes: &quot;Sequence so far: sunny, sunny&quot; leads to &quot;Get P(next given so far): sunny 0.7, cloudy 0.2, rain 0.1&quot;, which leads to &quot;Sample one outcome: draw u = 0.78, which lands between 0.7 and 0.9, giving cloudy&quot;, which leads to &quot;Append it: sunny, sunny, cloudy&quot;, which loops back to the start. A note says a language model runs the same loop with tokens instead of weather" /></p>
+<p><em>Generation loops through three steps: get the distribution for the next item, sample from it, and append the result.</em></p>
+<p>Here's a fortnight generated this way, starting from a sunny day:</p>
+<pre><code class="language-text">sunny sunny cloudy rain sunny sunny cloudy sunny cloudy rain cloudy sunny sunny sunny
+</code></pre>
+<p>Nobody wrote this forecast down; it's new. Yet it's plausible: long sunny spells, rain that
+usually follows clouds. Run it again with a different random seed and you get a different, equally
+plausible fortnight.</p>
+<p>This is how a language model writes. Swap &quot;weather&quot; for tokens (L0-01) and three outcomes
+for a vocabulary of, say, 50,000. At each step the model computes a conditional distribution over
+every possible next token, given all the text so far, samples one, appends it, and repeats. A
+model that generates this way, each new piece conditioned on the pieces before it, is called
+<strong>autoregressive</strong>.</p>
+<h3 id="scoring-a-whole-sequence-the-chain-rule">Scoring a whole sequence: the chain rule</h3>
+<p>How likely is the three-day sequence sunny, sunny, rain? Break it into steps and multiply:</p>
+<div class="math block">
+P(\text{sunny}, \text{sunny}, \text{rain}) = P(\text{sunny}) \times P(\text{sunny} \mid \text{sunny}) \times P(\text{rain} \mid \text{sunny}) = 0.5 \times 0.7 \times 0.1 = 0.035
+</div>
+<p>This is the <strong>chain rule of probability</strong>: the probability of a sequence is the probability of
+the first item, times the probability of each next item given what came before. Language models
+use exactly this to score a sentence: multiply the probability of each token given the tokens
+before it.</p>
+</section><section class="lesson-section" id="-how-it-works-practitioner" data-depth="yellow"><h2>🟡 How it works (practitioner)</h2><h3 id="the-weather-model-in-code">The weather model in code</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/02-probability-for-generative-models/code/weather_chain.py">code/weather_chain.py</a> computes every table above from the counts, using
+NumPy. Run it from this lesson's folder:</p>
+<pre><code class="language-bash">python code/weather_chain.py
+</code></pre>
+<p>The three probabilities take three lines:</p>
+<pre><code class="language-python">joint = JOINT_COUNTS / JOINT_COUNTS.sum()          # P(today, tomorrow)
+marginal = joint.sum(axis=1)                       # P(today): add across each row
+transitions = joint / marginal[:, np.newaxis]      # P(tomorrow | today) = joint / marginal
+</code></pre>
+<p>The last line is the definition of conditional probability:</p>
+<div class="math block">
+P(B \mid A) = \frac{P(A, B)}{P(A)}
+</div>
+<p>In words: of all the times <span class="math inline">A</span> happens, what fraction also have <span class="math inline">B</span>? <code>marginal[:, np.newaxis]</code>
+reshapes the marginals into a column, so that NumPy divides each <em>row</em> of the joint table by that
+row's marginal.</p>
+<p>Generation is one line inside a loop. <code>rng.choice(3, p=transitions[today])</code> samples an outcome
+using the row for today:</p>
+<pre><code class="language-python">while len(sequence) &lt; days:
+    today = sequence[-1]
+    sequence.append(int(rng.choice(len(STATES), p=transitions[today])))
+</code></pre>
+<p>The output ends with a check. Generate 10,000 days and count them:</p>
+<pre><code class="language-text">share of days in 10,000 generated days: sunny 0.498  cloudy 0.297  rain 0.204
+</code></pre>
+<p>Those shares are close to the marginals, 0.5, 0.3 and 0.2. Over many samples, frequencies settle
+near the true probabilities. That's the <strong>law of large numbers</strong>, and it's how you test any
+sampler.</p>
+<h3 id="a-sampler-from-scratch">A sampler from scratch</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/02-probability-for-generative-models/code/sampling.py">code/sampling.py</a> implements the strip from the core section:</p>
+<pre><code class="language-python">def sample_categorical(probs: np.ndarray, u: float) -&gt; int:
+    total = 0.0
+    for outcome, p in enumerate(probs):
+        total += p
+        if u &lt; total:
+            return outcome
+    return len(probs) - 1  # guards against rounding when the probabilities sum to 0.99999...
+</code></pre>
+<p>Running it compares this sampler with NumPy's at three sample sizes:</p>
+<pre><code class="language-text">sample frequencies (ours, then NumPy's):
+       10 draws: sunny 0.300 cloudy 0.400 rain 0.300 | sunny 0.500 cloudy 0.200 rain 0.300
+      100 draws: sunny 0.450 cloudy 0.290 rain 0.260 | sunny 0.460 cloudy 0.280 rain 0.260
+   10,000 draws: sunny 0.501 cloudy 0.298 rain 0.201 | sunny 0.494 cloudy 0.307 rain 0.200
+</code></pre>
+<p>With 10 draws, the frequencies are far from 0.5, 0.3 and 0.2. With 10,000, both samplers are
+within about 0.01. Small samples are noisy. Keep that in mind whenever you evaluate a model on a
+handful of generated outputs.</p>
+<h3 id="where-a-models-probabilities-come-from-softmax">Where a model's probabilities come from: softmax</h3>
+<p>A count table works for three weather types. A neural network instead computes a list of
+arbitrary real numbers, one score per possible outcome (often called <strong>logits</strong>). Scores can
+be negative and don't sum to 1. The <strong>softmax</strong> function turns them into a distribution:</p>
+<div class="math block">
+\text{softmax}(z)_i = \frac{e^{z_i}}{\sum_j e^{z_j}}
+</div>
+<p>Here <span class="math inline">z</span> is the list of scores, <span class="math inline">z_i</span> is the score of outcome <span class="math inline">i</span>, and <span class="math inline">e^{z_i}</span> is the exponential
+function (<span class="math inline">e \approx 2.718</span> raised to the power <span class="math inline">z_i</span>), which makes every value positive. Dividing by
+the sum makes them add up to 1. For scores 2.0, 1.0 and 0.5:</p>
+<table>
+<thead>
+<tr>
+<th>Outcome</th>
+<th>Score <span class="math inline">z_i</span></th>
+<th><span class="math inline">e^{z_i}</span></th>
+<th>Probability</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>sunny</td>
+<td>2.0</td>
+<td>7.389</td>
+<td>7.389 / 11.756 = 0.629</td>
+</tr>
+<tr>
+<td>cloudy</td>
+<td>1.0</td>
+<td>2.718</td>
+<td>0.231</td>
+</tr>
+<tr>
+<td>rain</td>
+<td>0.5</td>
+<td>1.649</td>
+<td>0.140</td>
+</tr>
+</tbody>
+</table>
+<p>Higher scores get higher probabilities, and the ordering is always kept. You'll build models that
+output scores in L1-06, and adjust how &quot;peaked&quot; the distribution is (temperature) in L2-10.</p>
+<h3 id="expected-value">Expected value</h3>
+<p>The <strong>expected value</strong> of a numeric outcome is its probability-weighted average: multiply each
+value by its probability and add. If Brindlewick's noon temperature averages 18 °C on sunny days,
+14 °C on cloudy days and 11 °C on rainy days, the expected noon temperature on a random day is</p>
+<div class="math block">
+0.5 \times 18 + 0.3 \times 14 + 0.2 \times 11 = 15.4\ °\text{C}
+</div>
+<p>No single day need be 15.4 °C; it's the long-run average. L1-03 defines entropy as an expected
+value, and L1-05 defines a model's loss as one.</p>
+<h3 id="log-probabilities">Log-probabilities</h3>
+<p>Multiplying many probabilities gives numbers too small for a computer to store. The last part of
+<code>sampling.py</code> shows it:</p>
+<pre><code class="language-text">1,000 tokens, each with probability 0.1:
+  multiplying probabilities: 0.0
+  adding log-probabilities:  -2302.585
+</code></pre>
+<p>The true answer is <span class="math inline">10^{-1000}</span>, but the smallest positive normal number a standard 64-bit float can
+hold is about <span class="math inline">10^{-308}</span> (special subnormal values reach about <span class="math inline">10^{-324}</span>, still nowhere near),
+so the product rounds to exactly 0. This is called <strong>underflow</strong>. The fix is
+to work with the <strong>log-probability</strong> (the natural logarithm of a probability) and use the rule
+<span class="math inline">\log(a \times b) = \log a + \log b</span>: multiplying probabilities becomes adding log-probabilities.
+Log-probabilities are always zero or negative, and closer to 0 means more likely.</p>
+<h3 id="common-pitfalls">Common pitfalls</h3>
+<ul>
+<li><strong>Rows that don't sum to 1.</strong> <code>rng.choice(..., p=...)</code> raises an error if the probabilities
+don't sum to 1 (within a small tolerance). Normalize after any edit.</li>
+<li><strong>Confusing <span class="math inline">P(A \mid B)</span> with <span class="math inline">P(B \mid A)</span>.</strong> <span class="math inline">P(\text{rain tomorrow} \mid \text{cloudy
+today})</span> is 0.267, but <span class="math inline">P(\text{cloudy today} \mid \text{rain tomorrow})</span> is <span class="math inline">8/20 = 0.4</span>.
+They answer different questions.</li>
+<li><strong>Zero counts become impossible events.</strong> If a pair never appeared in the data, its
+probability is 0 and it can never be generated, and any sequence containing it scores 0. L1-03
+shows why that's a serious problem for measuring a model.</li>
+<li><strong>Unseeded randomness.</strong> Without a fixed seed, every run differs, so bugs are hard to
+reproduce. The catalog's examples always fix the seed (L0-06).</li>
+<li><strong>Judging a sampler on a few draws.</strong> As the 10-draw row shows, small samples mislead.</li>
+</ul>
+</section><section class="lesson-section" id="-going-deeper-expert" data-depth="red"><h2>🔴 Going deeper (expert)</h2><h3 id="the-chain-rule-is-exact-the-model-is-the-approximation">The chain rule is exact; the model is the approximation</h3>
+<p>For any sequence <span class="math inline">x_1, \ldots, x_n</span>, the chain rule holds with no assumptions at all:</p>
+<div class="math block">
+P(x_1, \ldots, x_n) = \prod_{t=1}^{n} P(x_t \mid x_1, \ldots, x_{t-1})
+</div>
+<p>The symbol <span class="math inline">\prod</span> means &quot;multiply together&quot;, here over every position <span class="math inline">t</span> from 1 to <span class="math inline">n</span>. Every
+autoregressive model, from this weather model to a large language model, is an attempt to
+estimate the factors on the right.</p>
+<p>The weather model makes an extra assumption: tomorrow depends on today only, not on earlier days.
+That's the <strong>Markov assumption</strong>, and a process that follows it is a <strong>Markov chain</strong>. It turns
+<span class="math inline">P(x_t \mid x_1, \ldots, x_{t-1})</span> into <span class="math inline">P(x_t \mid x_{t-1})</span>. N-gram models (L0-03) extend it to the
+previous <span class="math inline">n-1</span> items. Transformers drop it within their context window and condition on every
+earlier token, which is a large part of why they work.</p>
+<p>Why not just count longer contexts? A full table for contexts of length <span class="math inline">k</span> over a vocabulary of
+<span class="math inline">V</span> tokens has <span class="math inline">V^k</span> rows of <span class="math inline">V</span> probabilities each. With <span class="math inline">V = 50{,}000</span> and <span class="math inline">k = 2</span>, that's
+<span class="math inline">1.25 \times 10^{14}</span> numbers, and almost every row would be empty. Neural models replace the table
+with a function that computes the distribution from vectors (L1-01), so similar contexts share
+parameters. Bengio and colleagues framed this as fighting the <em>curse of dimensionality</em> in 2003.</p>
+<h3 id="long-run-behaviour-and-the-stationary-distribution">Long-run behaviour and the stationary distribution</h3>
+<p>The 10,000-day run landed on the marginals 0.5, 0.3 and 0.2. That's no accident. A distribution
+<span class="math inline">\pi</span> that the chain leaves unchanged, <span class="math inline">\pi^\top T = \pi^\top</span> for a transition matrix <span class="math inline">T</span>, is called a
+<strong>stationary distribution</strong>. Under mild conditions (every state reachable from every other, and no fixed cycle),
+a Markov chain's long-run frequencies converge to its unique stationary distribution from any
+start. This chain's joint count table is symmetric (10 sunny→cloudy pairs and 10 cloudy→sunny,
+and so on), so the marginals are exactly stationary. Markov chain Monte Carlo methods, used to
+sample from hard distributions, and the noise processes in diffusion models (L2-13) both rely on
+this kind of long-run behaviour.</p>
+<h3 id="the-most-likely-sequence-is-not-a-typical-sequence">The most likely sequence is not a typical sequence</h3>
+<p>The single most likely 14-day sequence is 14 sunny days, with probability
+<span class="math inline">0.5 \times 0.7^{13} \approx 0.0048</span>. Yet you'd almost never sample it, and the samples you do get
+have rain and clouds. With <span class="math inline">3^{14} \approx 4.8</span> million possible sequences, a lot of probability sits
+in the many &quot;typical&quot; ones rather than in the single best.</p>
+<p>Language models show the same effect, much amplified. Always choosing the most likely next token
+(greedy decoding) tends to produce bland, repetitive text, while sampling produces more varied
+and often more natural text, with more risk of going off-track. L2-10 covers the trade-off and
+the decoding methods that sit between the two.</p>
+<h3 id="bayes-rule-reasoning-backwards">Bayes' rule: reasoning backwards</h3>
+<p>Rearranging the definition of conditional probability gives <strong>Bayes' rule</strong>:</p>
+<div class="math block">
+P(A \mid B) = \frac{P(B \mid A)\, P(A)}{P(B)}
+</div>
+<p>It lets you reason from an effect back to a cause. If today is rainy, how likely is it that
+yesterday was sunny? <span class="math inline">P(\text{yesterday sunny} \mid \text{rain}) = 0.1 \times 0.5 / 0.2 = 0.25</span>.
+Generative models are often described as modelling <span class="math inline">P(\text{data})</span> or
+<span class="math inline">P(\text{data} \mid \text{condition})</span>, while discriminative models estimate <span class="math inline">P(\text{label} \mid \text{data})</span>
+directly (L0-01); Bayes' rule connects the two.</p>
+<h3 id="sampling-at-scale">Sampling at scale</h3>
+<p>The strip method costs <span class="math inline">O(V)</span> per draw (it may scan every outcome). With precomputed cumulative
+totals, a binary search takes <span class="math inline">O(\log V)</span>. A popular alternative is the <strong>Gumbel-max trick</strong>: add
+independent Gumbel-distributed noise to each log-probability and take the largest. The winner is
+an exact sample from the distribution, and the work parallelizes across outcomes, which suits
+hardware that processes many numbers at once. In a language model, sampling is rarely the
+bottleneck: computing the scores is.</p>
+</section><section class="lesson-section" id="common-misconceptions"><h2>Common misconceptions</h2><ul>
+<li><strong>Myth:</strong> A model's output is its one answer.
+<strong>Reality:</strong> The model produces a distribution, and the output is one sample from it. Another
+run can give a different, equally valid sample.</li>
+<li><strong>Myth:</strong> Sampling means choosing the most likely option.
+<strong>Reality:</strong> Sampling picks each option as often as its probability. Always choosing the most
+likely option is a separate strategy, called greedy decoding.</li>
+<li><strong>Myth:</strong> <span class="math inline">P(A \mid B)</span> and <span class="math inline">P(B \mid A)</span> are the same thing.
+<strong>Reality:</strong> They are usually different. Bayes' rule converts one into the other.</li>
+<li><strong>Myth:</strong> A probability of 0.035 for a sequence means the model thinks it's unlikely.
+<strong>Reality:</strong> Long sequences always have small probabilities, because there are so many
+possible sequences. Compare probabilities of sequences of the same length, or use the average
+per-step log-probability (L1-03).</li>
+</ul>
+</section><section class="lesson-section" id="hands-on-exercise"><h2>Hands-on exercise</h2><p><strong>Goal:</strong> score every three-day weather sequence with the chain rule, and confirm that the
+probabilities form a valid distribution.</p>
+<p>Open <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/02-probability-for-generative-models/exercises/three_day_forecasts.py">exercises/three_day_forecasts.py</a> and complete
+<code>sequence_log_prob()</code> and <code>sample_categorical()</code>, which samples by dropping one uniform number
+onto the strip. Before running, predict the most likely three-day sequence, and the
+probability of three rainy days. For a stretch goal, estimate P(rain, rain, rain) by generating
+sequences and counting.</p>
+<p>You've succeeded when the 27 probabilities add up to 1.000000 and the strip check matches the
+strip diagram: 0.10 lands in sunny, 0.62 in cloudy and 0.93 in rain.</p>
+<details>
+<summary>Solution</summary>
+<p>The full solution is in
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/02-probability-for-generative-models/exercises/solutions/three_day_forecasts.py">exercises/solutions/three_day_forecasts.py</a>:</p>
+<pre><code class="language-python">total = math.log(START[sequence[0]])
+for today, tomorrow in zip(sequence, sequence[1:]):
+    total += math.log(TRANSITIONS[today, tomorrow])
+return total
+
+# sample_categorical: walk the running totals until u falls below one
+running = 0.0
+for i, p in enumerate(probs):
+    running += p
+    if u &lt; running:
+        return i
+return len(probs) - 1    # guard: totals can add up to 0.99999...
+</code></pre>
+<pre><code class="language-text">27 sequences, probabilities sum to 1.000000
+most likely:
+  sunny sunny sunny     0.2450   log-prob -1.406
+  sunny sunny cloudy    0.0700   log-prob -2.659
+  cloudy sunny sunny    0.0700   log-prob -2.659
+P(rain, rain, rain) = 0.0245
+strip check: u = 0.10 -&gt; sunny, u = 0.62 -&gt; cloudy, u = 0.93 -&gt; rain
+estimated from 100,000 generated sequences: 0.0250
+</code></pre>
+<p>The probabilities must sum to 1 because the 27 sequences cover every possible outcome exactly
+once: the chain rule splits the total probability of 1 across the first day, then splits each
+share across the second day, and so on. If your sum is anything else, a factor is wrong.</p>
+<p><span class="math inline">P(\text{rain}, \text{rain}, \text{rain}) = 0.2 \times 0.35 \times 0.35 = 0.0245</span>. The estimate from
+100,000 samples, 0.0250, is close. With only 1,000 samples you'd expect about 25 hits, and the
+estimate can easily be off by 20% or more.</p>
+</details>
+</section><section class="lesson-section" id="check-your-understanding"><h2>Check your understanding</h2><div class="quiz" data-lesson="L1-02" data-count="5"><ol class="questions"><li class="question" data-kind="single" data-answer="C"><div class="q-text">Using the count table, what is <span class="math inline">P(\text{tomorrow} = \text{cloudy} \mid \text{today} = \text{rain})</span>?</div><fieldset><legend class="visually-hidden">Options for question 1</legend><label class="option"><input type="radio" name="L1-02-q1" value="A"><span class="letter">A.</span> <span>0.08</span></label><label class="option"><input type="radio" name="L1-02-q1" value="B"><span class="letter">B.</span> <span>0.30</span></label><label class="option"><input type="radio" name="L1-02-q1" value="C"><span class="letter">C.</span> <span>0.40</span></label><label class="option"><input type="radio" name="L1-02-q1" value="D"><span class="letter">D.</span> <span>0.27</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>C.</strong> Look only at the rain row: 8 of its 20 days were followed by cloudy, and
+<span class="math inline">8/20 = 0.4</span>. A (0.08) is the <em>joint</em> probability, 8 out of all 100 pairs. B (0.30) is the
+marginal probability of a cloudy day. D (0.27) is <span class="math inline">P(\text{rain} \mid \text{cloudy})</span>, which
+reverses the condition.</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,C,D"><div class="q-text">Which of these are true of a categorical distribution? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 2</legend><label class="option"><input type="checkbox" name="L1-02-q2" value="A"><span class="letter">A.</span> <span>Its probabilities add up to 1</span></label><label class="option"><input type="checkbox" name="L1-02-q2" value="B"><span class="letter">B.</span> <span>The most likely outcome is chosen every time you sample from it</span></label><label class="option"><input type="checkbox" name="L1-02-q2" value="C"><span class="letter">C.</span> <span>It can be sampled with one uniform random number and the cumulative totals</span></label><label class="option"><input type="checkbox" name="L1-02-q2" value="D"><span class="letter">D.</span> <span>Each probability is between 0 and 1</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, C, D.</strong> A and D are what makes it a distribution, and C is the strip method from this
+lesson. B describes greedy choice, not sampling: sampling picks each outcome as often as its
+probability says.</p>
+</div></li><li class="question" data-kind="single" data-answer="B"><div class="q-text">A model gives these conditional probabilities for a three-token sentence: 0.2 for the first token, 0.5 for the second given the first, and 0.1 for the third given the first two. What is the probability of the sentence?</div><fieldset><legend class="visually-hidden">Options for question 3</legend><label class="option"><input type="radio" name="L1-02-q3" value="A"><span class="letter">A.</span> <span>0.8</span></label><label class="option"><input type="radio" name="L1-02-q3" value="B"><span class="letter">B.</span> <span>0.01</span></label><label class="option"><input type="radio" name="L1-02-q3" value="C"><span class="letter">C.</span> <span>0.267</span></label><label class="option"><input type="radio" name="L1-02-q3" value="D"><span class="letter">D.</span> <span>0.1</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> By the chain rule, <span class="math inline">0.2 \times 0.5 \times 0.1 = 0.01</span>. A adds the probabilities instead
+of multiplying. C averages them. D takes only the last factor.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text">You run the same weather model twice from the same starting day and get two different fortnights. A colleague says the code must have a bug. What do you tell them, and how would you make the runs repeatable?</div><label class="visually-hidden" for="L1-02-q4-text">Your answer</label><textarea id="L1-02-q4-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>Different outputs are expected: the model samples, so each run makes different random choices,
+and both fortnights are valid samples from the same distribution. To make runs repeatable,
+create the random-number generator with a fixed seed, such as
+<code>np.random.default_rng(seed=7)</code>. The same seed always produces the same sequence of random
+numbers, so the same samples.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text"><strong>Explain it to a colleague:</strong> in plain language, how does a language model &quot;write&quot; a sentence, and why does it use probabilities rather than picking one fixed next word?</div><label class="visually-hidden" for="L1-02-q5-text">Your answer</label><textarea id="L1-02-q5-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>It writes one token at a time. At each step it works out, from all the text so far, a
+probability for every possible next token, picks one at random according to those
+probabilities, adds it to the text and repeats. Probabilities let it represent that many
+continuations are reasonable, with some more likely than others. Sampling from them produces
+varied, natural text, whereas always taking the single most likely token tends to produce
+bland, repetitive text. The same mechanism explains why one prompt can give different answers.</p>
+</div></li></ol><p class="quiz-score" aria-live="polite"></p></div></section><section class="lesson-section" id="key-terms"><h2>Key terms</h2><ul>
+<li><a href="../glossary.html#autoregressive-model">Autoregressive model</a></li>
+<li><a href="../glossary.html#bayes-rule">Bayes' rule</a></li>
+<li><a href="../glossary.html#categorical-distribution">Categorical distribution</a></li>
+<li><a href="../glossary.html#chain-rule-of-probability">Chain rule of probability</a></li>
+<li><a href="../glossary.html#conditional-probability">Conditional probability</a></li>
+<li><a href="../glossary.html#cumulative-distribution">Cumulative distribution</a></li>
+<li><a href="../glossary.html#expected-value">Expected value</a></li>
+<li><a href="../glossary.html#gumbel-max-trick">Gumbel-max trick</a></li>
+<li><a href="../glossary.html#joint-probability">Joint probability</a></li>
+<li><a href="../glossary.html#law-of-large-numbers">Law of large numbers</a></li>
+<li><a href="../glossary.html#log-probability">Log-probability</a></li>
+<li><a href="../glossary.html#logits">Logits</a></li>
+<li><a href="../glossary.html#marginal-probability">Marginal probability</a></li>
+<li><a href="../glossary.html#markov-assumption">Markov assumption</a></li>
+<li><a href="../glossary.html#markov-chain">Markov chain</a></li>
+<li><a href="../glossary.html#softmax">Softmax</a></li>
+<li><a href="../glossary.html#stationary-distribution">Stationary distribution</a></li>
+<li><a href="../glossary.html#underflow">Underflow</a></li>
+<li><a href="../glossary.html#uniform-distribution">Uniform distribution</a></li>
+</ul>
+</section><section class="lesson-section" id="further-reading"><h2>Further reading</h2><ul>
+<li>🟢 <strong>Seeing Theory</strong> — D. Kunin, J. Guo, T. D. Devlin and D. Xiang (Brown University). Free
+interactive visual introduction to probability. <a href="https://seeing-theory.brown.edu/">https://seeing-theory.brown.edu/</a></li>
+<li>🟡 <strong>Introduction to Probability</strong> — J. K. Blitzstein and J. Hwang (2nd ed., 2019). CRC Press.
+A clear, example-driven textbook. It covers conditional probability, expectation and Markov
+chains in more depth.</li>
+<li>🟡 <strong>Mathematics for Machine Learning</strong> — M. P. Deisenroth, A. A. Faisal and C. S. Ong (2020).
+Chapter 6 covers probability and distributions with machine learning in mind.
+<a href="https://mml-book.github.io/">https://mml-book.github.io/</a></li>
+<li>🔴 <strong>Speech and Language Processing</strong>, chapter &quot;N-gram Language Models&quot; — D. Jurafsky and
+J. H. Martin (3rd ed. draft). Language modelling with counts, the chain rule and the Markov
+assumption. <a href="https://web.stanford.edu/~jurafsky/slp3/">https://web.stanford.edu/~jurafsky/slp3/</a></li>
+<li>🔴 <strong>A Neural Probabilistic Language Model</strong> — Y. Bengio, R. Ducharme, P. Vincent and
+C. Jauvin (2003). <em>Journal of Machine Learning Research</em>, 3, 1137–1155. Why count tables fail
+for long contexts, and the neural alternative.</li>
+</ul>
+</section><section class="lesson-section" id="next"><h2>Next</h2><ul>
+<li><strong>Next lesson:</strong> <a href="../lessons/L1-03.html">L1-03 Information Basics: Entropy, Cross-Entropy, Perplexity, KL</a></li>
+<li><strong>Related:</strong> L1-06 trains a model that outputs scores and uses softmax. L2-10 covers decoding
+strategies (greedy, temperature, top-k, top-p). L2-13 uses noise and sampling in diffusion models.</li>
+</ul>
+</section>
+    <div class="complete-box">
+      <button type="button" class="btn primary mark-complete" data-lesson="L1-02">Mark lesson as complete</button>
+      <p class="complete-status" aria-live="polite"></p>
+    </div>
+    <nav class="pager" aria-label="Lesson navigation"><a class="pager-prev" href="L1-01.html" rel="prev"><small>Previous</small>L1-01 Vectors, Matrices and Similarity</a><a class="pager-next" href="L1-03.html" rel="next"><small>Next</small>L1-03 Information Basics: Entropy, Cross-Entropy, Perplexity, KL</a></nav>
+  </article>
+</div>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="../about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>

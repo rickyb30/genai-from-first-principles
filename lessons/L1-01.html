@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="en-CA" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vectors, Matrices and Similarity · Generative AI from First Principles</title>
+<meta name="description" content="Generative models represent words, images and everything else as lists of numbers called vectors. Two vectors that point in a similar direction stand for similar things, and one simple calculation, the dot product, measures how similar they are. A matrix is a stack of vectors, and multiplying a matr">
+<link rel="stylesheet" href="../style.css?v=2026-11-20">
+<link rel="stylesheet" href="../vendor/katex/katex.min.css">
+<script defer src="../vendor/katex/katex.min.js"></script>
+<script>
+document.documentElement.classList.replace("no-js", "js");
+try { var t = JSON.parse(localStorage.getItem("genai-fp-progress")).settings.theme;
+  if (t === "light" || t === "dark") document.documentElement.setAttribute("data-theme", t); } catch (e) {}
+</script>
+<script defer src="../data.js?v=2026-11-20"></script>
+<script defer src="../app.js?v=2026-11-20"></script>
+</head>
+<body data-root="../">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="header-inner">
+    <a class="brand" href="../index.html"><span class="brand-mark" aria-hidden="true">◆</span> Generative AI from First Principles</a>
+    <nav aria-label="Main"><ul class="nav"><li><a href="../index.html">Home</a></li>
+<li><a href="../curriculum.html">Curriculum</a></li>
+<li><a href="../paths.html">Learning paths</a></li>
+<li><a href="../glossary.html">Glossary & flashcards</a></li>
+<li><a href="../progress.html">Progress</a></li>
+<li><a href="../about.html">About</a></li></ul></nav>
+    <div class="header-tools">
+      <div class="search" role="search">
+        <label class="visually-hidden" for="search-input">Search lessons and terms</label>
+        <input id="search-input" type="search" placeholder="Search…" autocomplete="off"
+               aria-controls="search-results" aria-expanded="false">
+        <ul id="search-results" class="search-results" hidden></ul>
+      </div>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch colour theme">◐</button>
+    </div>
+  </div>
+</header>
+<main id="main">
+
+<div class="lesson-layout">
+  <aside class="toc" aria-label="On this page">
+    <p class="toc-title">On this page</p>
+    <ol><li class=""><a href="#learning-objectives">Learning objectives</a></li><li class=""><a href="#why-this-matters">Why this matters</a></li><li class="green"><a href="#-core-idea-everyone"><span class="depth-dot green" aria-hidden="true"></span>Core idea (everyone)</a></li><li class="yellow"><a href="#-how-it-works-practitioner"><span class="depth-dot yellow" aria-hidden="true"></span>How it works (practitioner)</a></li><li class="red"><a href="#-going-deeper-expert"><span class="depth-dot red" aria-hidden="true"></span>Going deeper (expert)</a></li><li class=""><a href="#common-misconceptions">Common misconceptions</a></li><li class=""><a href="#hands-on-exercise">Hands-on exercise</a></li><li class=""><a href="#check-your-understanding">Check your understanding</a></li><li class=""><a href="#key-terms">Key terms</a></li><li class=""><a href="#further-reading">Further reading</a></li><li class=""><a href="#next">Next</a></li></ol>
+  </aside>
+  <article class="lesson" data-lesson="L1-01">
+    <p class="breadcrumb"><a href="../curriculum.html#level-1">Level 1</a> · Module 1A The math generative models run on</p>
+    <h1>Vectors, Matrices and Similarity</h1>
+    <div class="tldr"><strong>TL;DR</strong> Generative models represent words, images and everything else as lists of numbers called vectors. Two vectors that point in a similar direction stand for similar things, and one simple calculation, the dot product, measures how similar they are. A matrix is a stack of vectors, and multiplying a matrix by a vector computes many dot products at once. That one operation is most of the arithmetic a language model does.</div>
+    <ul class="meta">
+      <li><span aria-hidden="true">⏱</span> 45 min</li>
+      <li>Prerequisites: <a href="L0-06.html">L0-06</a></li>
+      <li>Last reviewed: 2026-11-20</li>
+      <li><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/01-vectors-matrices-similarity/README.md">View source on GitHub</a></li>
+    </ul>
+    <div class="depth-filter" role="group" aria-label="Reading depth">
+      <span class="depth-label">Reading depth:</span>
+      <button type="button" data-depth="green" aria-pressed="false"><span class="depth-dot green" aria-hidden="true"></span> Core</button>
+      <button type="button" data-depth="yellow" aria-pressed="false"><span class="depth-dot yellow" aria-hidden="true"></span> + Practitioner</button>
+      <button type="button" data-depth="red" aria-pressed="true"><span class="depth-dot red" aria-hidden="true"></span> + Expert</button>
+    </div>
+    <section class="lesson-section" id="learning-objectives"><h2>Learning objectives</h2><p>By the end you will be able to:</p>
+<ol>
+<li><strong>Compute</strong> a dot product, a vector's length and the cosine similarity of two vectors, by hand
+and in NumPy.</li>
+<li><strong>Compute</strong> a matrix–vector product and explain it as &quot;many dot products at once&quot;.</li>
+<li><strong>Compare</strong> dot product, cosine similarity and Euclidean distance, and choose one for a task.</li>
+<li><strong>Explain</strong> why representing meaning as a vector works, and where the idea has limits.</li>
+</ol>
+</section><section class="lesson-section" id="why-this-matters"><h2>Why this matters</h2><p>Every generative model you meet in this catalog runs on vectors. A language model turns each
+token into a vector, mixes vectors together in every layer, and turns a final vector back into
+probabilities for the next token. Semantic search, retrieval-augmented generation and
+recommendation all rank items by vector similarity.</p>
+<p>Small misunderstandings here cause real bugs later: comparing vectors with a dot product when
+their lengths mean nothing, mixing up a matrix's rows and columns, or reading a cosine of 0.3 as
+&quot;barely related&quot; without knowing what scale the model uses (in 768 dimensions, random vectors
+almost never get that close). This lesson gives you the
+handful of operations you need, with numbers small enough to check by hand.</p>
+</section><section class="lesson-section" id="-core-idea-everyone" data-depth="green"><h2>🟢 Core idea (everyone)</h2><h3 id="a-vector-is-a-list-of-numbers-with-a-meaning-for-each-position">A vector is a list of numbers with a meaning for each position</h3>
+<p>A <strong>vector</strong> is an ordered list of numbers. Each position holds one feature, and the number of
+positions is the vector's <strong>dimension</strong>. The vector <code>[4, 0, 3]</code> has dimension 3.</p>
+<p>Suppose you describe some words from the town of Brindlewick with three features: how much each
+word has to do with <em>water</em>, with <em>books</em>, and with <em>travel</em>, on a scale from 0 to 5.</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>water</th>
+<th>books</th>
+<th>travel</th>
+<th>Vector</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ferry</td>
+<td>4</td>
+<td>0</td>
+<td>3</td>
+<td><code>[4, 0, 3]</code></td>
+</tr>
+<tr>
+<td>boat</td>
+<td>3</td>
+<td>0</td>
+<td>4</td>
+<td><code>[3, 0, 4]</code></td>
+</tr>
+<tr>
+<td>river</td>
+<td>5</td>
+<td>0</td>
+<td>0</td>
+<td><code>[5, 0, 0]</code></td>
+</tr>
+<tr>
+<td>train</td>
+<td>0</td>
+<td>0</td>
+<td>5</td>
+<td><code>[0, 0, 5]</code></td>
+</tr>
+<tr>
+<td>museum</td>
+<td>0</td>
+<td>4</td>
+<td>3</td>
+<td><code>[0, 4, 3]</code></td>
+</tr>
+<tr>
+<td>library</td>
+<td>0</td>
+<td>5</td>
+<td>0</td>
+<td><code>[0, 5, 0]</code></td>
+</tr>
+</tbody>
+</table>
+<p>You can also picture a vector as an arrow from the origin (the point where every feature is 0)
+to the point those numbers describe. Four of these words have 0 for &quot;books&quot;, so they lie flat
+on the water–travel plane and can be drawn exactly:</p>
+<p><img src="../img/curriculum/level-1-foundations/01-vectors-matrices-similarity/diagrams/angle_between_words.png" alt="Four arrows from the origin on a grid with &quot;water&quot; on the horizontal axis and &quot;travel&quot; on the vertical axis: river points along the water axis to (5, 0), ferry to (4, 3), boat to (3, 4), and train straight up the travel axis to (0, 5). An arc marks the 36.9 degree angle between ferry and river, labelled cos = 0.8" /></p>
+<p><em>Ferry and boat point in nearly the same direction; ferry and train are further apart; the angle between ferry and river is 36.9°.</em></p>
+<p>The picture shows the key idea: <strong>words with similar meanings point in similar directions.</strong>
+&quot;Ferry&quot; sits between &quot;river&quot; and &quot;boat&quot; because a ferry is about both water and travel.</p>
+<p><strong>An analogy.</strong> Think of each vector as a recipe: so much water, so much books, so much
+travel. Two dishes made from the same ingredients in similar proportions taste alike, even if
+one is a double batch.</p>
+<p><strong>Where the analogy breaks down:</strong> a recipe's ingredients have names you chose. The vectors in a
+real model are learned from data, have hundreds or thousands of positions, and most positions
+have no meaning a person can name. The arithmetic below works the same either way.</p>
+<h3 id="the-dot-product-multiply-and-add">The dot product: multiply and add</h3>
+<p>The <strong>dot product</strong> of two vectors of the same dimension multiplies matching positions and adds
+the results. For ferry and river:</p>
+<div class="math block">
+\text{ferry} \cdot \text{river} = 4 \times 5 + 0 \times 0 + 3 \times 0 = 20
+</div>
+<p>A large dot product means the two vectors have big values in the same places. If one vector is
+0 wherever the other is not, the dot product is 0: ferry · library <span class="math inline">= 4 \times 0 + 0 \times 5 +
+3 \times 0 = 0</span>.</p>
+<h3 id="length-and-why-it-gets-in-the-way">Length, and why it gets in the way</h3>
+<p>A vector's <strong>length</strong> (also called its <strong>norm</strong>) is the length of its arrow. In two or three
+dimensions, it's Pythagoras: square each entry, add them up, take the square root.</p>
+<div class="math block">
+\text{length of ferry} = \sqrt{4^2 + 0^2 + 3^2} = \sqrt{25} = 5
+</div>
+<p>The dot product grows with length. A document that mentions ferries twice as often might have
+the vector <code>[8, 0, 6]</code>: same direction as ferry, twice as long. Its dot product with river
+doubles to 40, though it's no more &quot;about rivers&quot; than before. Often you want to compare
+<em>directions</em> only.</p>
+<h3 id="cosine-similarity-compare-directions-ignore-length">Cosine similarity: compare directions, ignore length</h3>
+<p><strong>Cosine similarity</strong> divides the dot product by both lengths:</p>
+<div class="math block">
+\text{cosine}(\text{ferry}, \text{river}) = \frac{20}{5 \times 5} = 0.8
+</div>
+<p>The result is the cosine of the angle between the two arrows (the angle in the diagram is
+36.9°, and <span class="math inline">\cos 36.9° = 0.8</span>). It always lies between −1 and 1:</p>
+<table>
+<thead>
+<tr>
+<th>Cosine</th>
+<th>Angle</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>0°</td>
+<td>Same direction</td>
+</tr>
+<tr>
+<td>0</td>
+<td>90°</td>
+<td>Unrelated: no shared direction (perpendicular, at right angles)</td>
+</tr>
+<tr>
+<td>−1</td>
+<td>180°</td>
+<td>Opposite directions</td>
+</tr>
+</tbody>
+</table>
+<p>Here is every word compared with ferry. All these vectors have length 5, so each cosine is just
+the dot product divided by 25:</p>
+<table>
+<thead>
+<tr>
+<th>Word</th>
+<th>Dot product with ferry</th>
+<th>Cosine similarity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ferry</td>
+<td>25</td>
+<td>1.000</td>
+</tr>
+<tr>
+<td>boat</td>
+<td><span class="math inline">4 \times 3 + 3 \times 4 = 24</span></td>
+<td>0.960</td>
+</tr>
+<tr>
+<td>river</td>
+<td>20</td>
+<td>0.800</td>
+</tr>
+<tr>
+<td>train</td>
+<td>15</td>
+<td>0.600</td>
+</tr>
+<tr>
+<td>museum</td>
+<td>9</td>
+<td>0.360</td>
+</tr>
+<tr>
+<td>library</td>
+<td>0</td>
+<td>0.000</td>
+</tr>
+</tbody>
+</table>
+<p>That ranking matches intuition: boats are most like ferries, libraries least. In this toy, no
+cosine is negative because no feature is negative. Learned vectors use negative numbers freely,
+so negative cosines are common there.</p>
+<h3 id="a-matrix-is-a-stack-of-vectors">A matrix is a stack of vectors</h3>
+<p>A <strong>matrix</strong> is a rectangular grid of numbers: rows and columns. Stack the six word vectors as
+rows and you get a matrix with 6 rows and 3 columns, called a &quot;6 by 3&quot; matrix. Its <strong>shape</strong> is
+written (6, 3).</p>
+<p>Multiplying that matrix by the ferry vector computes the dot product of ferry with <em>each row</em>,
+giving six numbers: exactly the &quot;dot product&quot; column above. That operation is the
+<strong>matrix–vector product</strong>, and it's the workhorse of AI. A search engine compares one query
+vector with millions of stored vectors this way. A neural network layer multiplies its input
+vector by a matrix of learned numbers, in every layer, for every token.</p>
+<h3 id="why-meaning-as-a-vector-works">Why &quot;meaning as a vector&quot; works</h3>
+<p>The idea goes back to linguists in the 1950s, under the name <strong>distributional hypothesis</strong>:
+words that appear in similar contexts tend to have similar meanings. &quot;Ferry&quot; and &quot;boat&quot; both
+appear near &quot;river&quot;, &quot;crossing&quot; and &quot;dock&quot;. J. R. Firth put it in 1957 as &quot;You shall know a word
+by the company it keeps.&quot;</p>
+<p>Modern models learn vectors so that words used in similar ways get similar vectors. Nobody
+chooses the features: training adjusts the numbers until similar usage means similar direction.
+L2-02 trains vectors like this. This lesson uses hand-made features only so that you can check
+every number.</p>
+</section><section class="lesson-section" id="-how-it-works-practitioner" data-depth="yellow"><h2>🟡 How it works (practitioner)</h2><h3 id="the-three-operations-in-numpy">The three operations in NumPy</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/01-vectors-matrices-similarity/code/word_vectors.py">code/word_vectors.py</a> computes everything from the core section twice:
+first with plain Python loops, so you can see each step, and then with NumPy.</p>
+<pre><code class="language-python">def cosine(a: np.ndarray, b: np.ndarray) -&gt; float:
+    return float(a @ b / (np.linalg.norm(a) * np.linalg.norm(b)))
+</code></pre>
+<ul>
+<li><code>a @ b</code> is the dot product. NumPy also has <code>np.dot(a, b)</code>, which gives the same answer for
+vectors.</li>
+<li><code>np.linalg.norm(a)</code> is the length.</li>
+</ul>
+<p>Run it from this lesson's folder:</p>
+<pre><code class="language-bash">python code/word_vectors.py
+</code></pre>
+<pre><code class="language-text">ferry   = [4, 0, 3]
+river   = [5, 0, 0]
+dot(ferry, river)     by hand: 20   with NumPy: 20
+length(ferry)         by hand: 5.0  with NumPy: 5.0
+cosine(ferry, river)  by hand: 0.8  with NumPy: 0.8
+
+cosine similarity to &quot;ferry&quot;:
+  ferry    1.000
+  boat     0.960
+  river    0.800
+  train    0.600
+  museum   0.360
+  library  0.000
+
+distance vs cosine for &quot;ferry&quot; and &quot;harbour&quot; = [8, 0, 6]:
+  dot 50   cosine 1.000   euclidean distance 5.000
+</code></pre>
+<h3 id="matrixvector-products-step-by-step">Matrix–vector products, step by step</h3>
+<p><a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/01-vectors-matrices-similarity/code/matrix_vector.py">code/matrix_vector.py</a> stacks the six vectors into a matrix <code>W</code> and
+scores them all against a query in one line:</p>
+<pre><code class="language-python">scores = W @ query      # shape (6, 3) @ shape (3,) -&gt; shape (6,)
+</code></pre>
+<p>The rule for shapes: the number of columns of the matrix must equal the dimension of the
+vector. The result has one entry per row. Entry <span class="math inline">i</span> is the dot product of row <span class="math inline">i</span> with the
+vector:</p>
+<div class="math block">
+(W\mathbf{x})_i = \sum_{j=1}^{n} W_{ij}\, x_j
+</div>
+<p>Here <span class="math inline">W</span> is a matrix with <span class="math inline">m</span> rows and <span class="math inline">n</span> columns, <span class="math inline">\mathbf{x}</span> is a vector of dimension <span class="math inline">n</span>,
+<span class="math inline">W_{ij}</span> is the number in row <span class="math inline">i</span> and column <span class="math inline">j</span>, and <span class="math inline">\sum_{j=1}^{n}</span> means &quot;add up the terms
+for <span class="math inline">j = 1, 2, \ldots, n</span>&quot;.</p>
+<pre><code class="language-text">W has shape (6, 3): 6 words, 3 features each
+query &quot;ferry&quot; has shape (3,)
+W @ query has shape (6,): one score per word
+dot products:       [25. 24. 20. 15.  9.  0.]
+after normalizing:  [1.   0.96 0.8  0.6  0.36 0.  ]
+
+a 2 x 3 matrix that mixes features into 2 new ones:
+M = [[1 0 0]
+     [0 1 1]]
+M @ ferry  = [4 3]
+M @ museum = [0 7]
+</code></pre>
+<p>Two things in that output are worth slowing down for.</p>
+<p><strong>Normalizing makes the dot product a cosine.</strong> Dividing a vector by its own length gives a
+<strong>unit vector</strong>: same direction, length 1. If you normalize every row of <code>W</code> and the query once,
+up front, then <code>W @ query</code> returns cosine similarities directly, with no division per pair. Search
+systems store normalized vectors for exactly this reason.</p>
+<p><strong>A matrix can transform a vector.</strong> The second part reads the matrix–vector product the other
+way: each output entry is a <em>weighted mix</em> of the input features. The matrix <code>M</code> keeps &quot;water&quot;
+as it is and adds &quot;books&quot; and &quot;travel&quot; together into a single new feature. <code>M</code> turns a
+3-dimensional vector into a 2-dimensional one. A neural network layer does exactly this, with
+weights that are learned instead of chosen (L1-07).</p>
+<h3 id="distance-or-similarity">Distance or similarity?</h3>
+<p>The <strong>Euclidean distance</strong> between two vectors is the length of the arrow from one tip to the
+other: subtract them, then take the length. It answers &quot;how far apart are the points?&quot;, which
+isn't the same question as &quot;do they point the same way?&quot;:</p>
+<table>
+<thead>
+<tr>
+<th>Measure</th>
+<th>Formula, in words</th>
+<th>Same direction, different length</th>
+<th>Typical use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dot product</td>
+<td>Multiply matching entries, add</td>
+<td>Grows with length</td>
+<td>Inside models (attention scores, layers); search when length carries meaning</td>
+</tr>
+<tr>
+<td>Cosine similarity</td>
+<td>Dot product ÷ both lengths</td>
+<td>Equal to 1</td>
+<td>Comparing meaning when length is noise, such as text of different lengths</td>
+</tr>
+<tr>
+<td>Euclidean distance</td>
+<td>Length of the difference</td>
+<td>Large</td>
+<td>Clustering and nearest neighbours when absolute position matters</td>
+</tr>
+</tbody>
+</table>
+<p>Ferry <code>[4, 0, 3]</code> and harbour <code>[8, 0, 6]</code> show the difference: cosine 1.000 (identical
+direction), but Euclidean distance 5.000, which is as far apart as ferry is from the origin.</p>
+<p>For unit vectors, the three measures agree on the ranking. The squared distance between unit
+vectors is <span class="math inline">2 - 2 \times \text{cosine}</span>, so the closest vector is always the one with the
+highest cosine. That's why many systems normalize first and then use whichever is fastest.</p>
+<h3 id="common-pitfalls">Common pitfalls</h3>
+<ul>
+<li><strong>Mismatched shapes.</strong> <code>W @ x</code> needs the columns of <code>W</code> to match the length of <code>x</code>. When it
+fails, print <code>.shape</code> of both before anything else.</li>
+<li><strong>Rows versus columns.</strong> In this lesson, rows are items and columns are features. Some code
+stores them the other way round. Check which convention your data uses before multiplying.</li>
+<li><strong>Dividing by zero.</strong> An all-zero vector has length 0, so its cosine is undefined. Real code
+checks for it or adds a tiny number to the denominator.</li>
+<li><strong>Comparing vectors from different sources.</strong> Cosine similarity only means something if both
+vectors come from the same model. Position 7 in one model has nothing to do with position 7
+in another.</li>
+<li><strong>Integer surprises.</strong> <code>np.array([4, 0, 3])</code> holds integers. Dividing gives floats, but
+assigning a float into an integer array silently truncates it: after <code>a[0] = 2.7</code>, <code>a[0]</code> is 2.
+Use <code>dtype=float</code> for math.</li>
+</ul>
+</section><section class="lesson-section" id="-going-deeper-expert" data-depth="red"><h2>🔴 Going deeper (expert)</h2><h3 id="dot-products-as-the-universal-comparison">Dot products as the universal comparison</h3>
+<p>In matrix notation, the dot product of column vectors <span class="math inline">\mathbf{a}</span> and <span class="math inline">\mathbf{b}</span> is
+<span class="math inline">\mathbf{a}^\top \mathbf{b} = \sum_i a_i b_i</span>, where <span class="math inline">\mathbf{a}^\top</span> is the <strong>transpose</strong> of
+<span class="math inline">\mathbf{a}</span> (rows and columns swapped). Its geometric form is</p>
+<div class="math block">
+\mathbf{a}^\top \mathbf{b} = \lVert \mathbf{a} \rVert \, \lVert \mathbf{b} \rVert \cos\theta
+</div>
+<p>where <span class="math inline">\lVert \mathbf{a} \rVert = \sqrt{\mathbf{a}^\top\mathbf{a}}</span> is the length and <span class="math inline">\theta</span> is the
+angle between the vectors. Cosine similarity is this equation solved for <span class="math inline">\cos\theta</span>. The
+Cauchy–Schwarz inequality, <span class="math inline">|\mathbf{a}^\top\mathbf{b}| \le \lVert\mathbf{a}\rVert\,\lVert\mathbf{b}\rVert</span>,
+is what guarantees the cosine stays between −1 and 1.</p>
+<p>Scaled dot products are how a transformer's attention decides which earlier tokens to draw on
+(L2-04). Each token's &quot;query&quot; vector is dotted with every earlier token's &quot;key&quot; vector. The
+scaling there, dividing by <span class="math inline">\sqrt{d}</span>, is related to the next section: dot products of random
+<span class="math inline">d</span>-dimensional vectors with independent unit-variance entries grow like <span class="math inline">\sqrt{d}</span>.</p>
+<h3 id="high-dimensions-behave-strangely">High dimensions behave strangely</h3>
+<p>Intuition from two and three dimensions can mislead you in 768. Run
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/01-vectors-matrices-similarity/code/high_dimensions.py">code/high_dimensions.py</a>, which measures the cosine between 2,000
+pairs of random vectors at each dimension:</p>
+<pre><code class="language-text">dimensions   average |cosine|   1/sqrt(d)
+         2              0.645       0.707
+        10              0.260       0.316
+       100              0.078       0.100
+     1,000              0.025       0.032
+</code></pre>
+<p>In high dimensions, random directions are almost perpendicular: the average absolute cosine
+shrinks like <span class="math inline">1/\sqrt{d}</span> (for large <span class="math inline">d</span> it approaches <span class="math inline">\sqrt{2/(\pi d)}</span>). Three consequences:</p>
+<ol>
+<li><strong>Scores have no universal scale.</strong> A cosine of 0.3 between two random 1,000-dimensional
+vectors would be extraordinary, more than ten times the typical value. Whether 0.3 is &quot;high&quot;
+depends on the model and the data. Calibrate thresholds on your own data, never by intuition.</li>
+<li><strong>There's a lot of room.</strong> A space with <span class="math inline">d</span> dimensions has at most <span class="math inline">d</span> exactly perpendicular
+directions, but exponentially many <em>nearly</em> perpendicular ones. Models can pack many more
+distinct concepts than dimensions. Interpretability research calls this
+<em>superposition</em> (Level 7).</li>
+<li><strong>Learned vectors aren't random.</strong> Real learned vectors are often <em>anisotropic</em> (unevenly
+spread): most crowd into a narrow cone, so every pair has a fairly high cosine. Subtracting the
+average vector, or normalizing per dimension, is a common fix. How much it helps depends on
+the model, so measure it.</li>
+</ol>
+<h3 id="cost-and-why-it-drives-system-design">Cost, and why it drives system design</h3>
+<p>A matrix–vector product with an <span class="math inline">m \times n</span> matrix costs <span class="math inline">m \times n</span> multiplications and about
+as many additions. Comparing one query against 10 million stored vectors of dimension 768 is
+about <span class="math inline">7.7 \times 10^{9}</span> multiply–adds: fine once, too slow for every keystroke. That cost is
+the reason for approximate nearest-neighbour indexes (L3-07). A matrix–matrix product, <span class="math inline">m \times
+n</span> times <span class="math inline">n \times p</span>, costs <span class="math inline">m \times n \times p</span>, which is why model training is dominated by
+matrix multiplication and why hardware for AI is built around it.</p>
+<h3 id="meaning-as-geometry-what-the-evidence-shows-and-its-limits">Meaning as geometry: what the evidence shows, and its limits</h3>
+<p>Learned word vectors famously show some linear structure: in the vectors from Mikolov and
+colleagues (2013), &quot;king&quot; − &quot;man&quot; + &quot;woman&quot; lands close to &quot;queen&quot;. This is real but
+oversold. Later work showed that many such analogies only &quot;work&quot; because the search excludes the
+input words, and that results vary a lot by relation type. TODO(verify): cite the papers that
+showed this. Vectors also absorb associations from
+their training text, including social biases (Level 6). And one vector per word can't separate
+the meanings of &quot;bank&quot; (river) and &quot;bank&quot; (money). Transformers address that with
+<em>contextual</em> vectors that change with the surrounding words (Level 2).</p>
+<blockquote>
+<p><strong>Active research (as of November 2026):</strong> how much of a model's knowledge is stored as
+directions in vector space, and how cleanly concepts can be read out or edited along those
+directions, is studied under the name <em>linear representation hypothesis</em>. The evidence is
+strong for some concepts and weak for others.</p>
+</blockquote>
+</section><section class="lesson-section" id="common-misconceptions"><h2>Common misconceptions</h2><ul>
+<li><strong>Myth:</strong> The numbers in a model's vectors each stand for a nameable feature, like &quot;water&quot; here.
+<strong>Reality:</strong> In learned vectors, individual positions rarely mean anything a person can name.
+Meaning lives in directions and in the relationships between vectors.</li>
+<li><strong>Myth:</strong> A cosine similarity of 0 means two things are opposites.
+<strong>Reality:</strong> 0 means perpendicular: no shared direction. Opposite directions give −1.</li>
+<li><strong>Myth:</strong> Dot product and cosine similarity are interchangeable.
+<strong>Reality:</strong> They agree only when every vector has the same length. Otherwise the dot product
+favours longer vectors.</li>
+<li><strong>Myth:</strong> A matrix is just a table for storing numbers.
+<strong>Reality:</strong> It's also an operation. Multiplying by a matrix transforms a vector into a new
+one, and that's what neural network layers do.</li>
+</ul>
+</section><section class="lesson-section" id="hands-on-exercise"><h2>Hands-on exercise</h2><p><strong>Goal:</strong> find every word's two nearest neighbours by cosine similarity, using one matrix
+product instead of a loop over pairs.</p>
+<p>Open <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/01-vectors-matrices-similarity/exercises/nearest_neighbours.py">exercises/nearest_neighbours.py</a>. The vocabulary has
+grown to 8 words, with a fourth feature, &quot;time&quot;. Complete <code>cosine_matrix()</code> and <code>top_k()</code>. Before
+running, predict which two words form the most similar pair, and which word &quot;clock&quot; is closest to.</p>
+<p>You've succeeded when the diagonal prints as all ones and each word's neighbours make sense.</p>
+<details>
+<summary>Solution</summary>
+<p>The full solution is in
+<a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/curriculum/level-1-foundations/01-vectors-matrices-similarity/exercises/solutions/nearest_neighbours.py">exercises/solutions/nearest_neighbours.py</a>. The key
+line normalizes the rows and multiplies the result by its own transpose:</p>
+<pre><code class="language-python">unit = vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
+return unit @ unit.T
+</code></pre>
+<p><code>unit @ unit.T</code> is an 8 × 8 matrix: entry <code>[i, j]</code> is the dot product of unit row <span class="math inline">i</span> with unit
+row <span class="math inline">j</span>, which is their cosine. The diagonal is 1 because every word points exactly in its own
+direction.</p>
+<pre><code class="language-text">similarity matrix shape: (8, 8)
+diagonal (each word with itself): [1. 1. 1. 1. 1. 1. 1. 1.]
+ferry      -&gt; boat (0.94), river (0.78)
+boat       -&gt; ferry (0.94), train (0.74)
+river      -&gt; ferry (0.78), boat (0.60)
+train      -&gt; timetable (0.84), boat (0.74)
+museum     -&gt; library (0.80), timetable (0.76)
+library    -&gt; museum (0.80), clock (0.38)
+clock      -&gt; timetable (0.81), museum (0.51)
+timetable  -&gt; train (0.84), clock (0.81)
+most similar pair: ferry and boat (0.94)
+</code></pre>
+<p>Notice &quot;timetable&quot;: it shares &quot;travel&quot; with train and &quot;time&quot; with clock, so it's close to both.
+That's the geometry of a word that bridges two topics. Also notice that &quot;library&quot; has no close
+neighbour except &quot;museum&quot;: with only four features, a word's neighbours can only be as good as
+the features allow.</p>
+</details>
+</section><section class="lesson-section" id="check-your-understanding"><h2>Check your understanding</h2><div class="quiz" data-lesson="L1-01" data-count="5"><ol class="questions"><li class="question" data-kind="single" data-answer="C"><div class="q-text">What is the cosine similarity of <code>[1, 2]</code> and <code>[2, 4]</code>?</div><fieldset><legend class="visually-hidden">Options for question 1</legend><label class="option"><input type="radio" name="L1-01-q1" value="A"><span class="letter">A.</span> <span>0</span></label><label class="option"><input type="radio" name="L1-01-q1" value="B"><span class="letter">B.</span> <span>0.5</span></label><label class="option"><input type="radio" name="L1-01-q1" value="C"><span class="letter">C.</span> <span>1</span></label><label class="option"><input type="radio" name="L1-01-q1" value="D"><span class="letter">D.</span> <span>10</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>C.</strong> <code>[2, 4]</code> is exactly twice <code>[1, 2]</code>, so both point in the same direction and the angle
+between them is 0°. Check: the dot product is <span class="math inline">1 \times 2 + 2 \times 4 = 10</span>, the lengths are
+<span class="math inline">\sqrt{5}</span> and <span class="math inline">\sqrt{20}</span>, and <span class="math inline">10 / \sqrt{100} = 1</span>. D is the dot product, not the cosine.</p>
+</div></li><li class="question" data-kind="multiple" data-answer="A,B,D"><div class="q-text">A matrix <code>W</code> has shape (1000, 64) and a vector <code>x</code> has shape (64,). Which statements are true? <em>(choose all that apply)</em></div><fieldset><legend class="visually-hidden">Options for question 2</legend><label class="option"><input type="checkbox" name="L1-01-q2" value="A"><span class="letter">A.</span> <span><code>W @ x</code> has shape (1000,)</span></label><label class="option"><input type="checkbox" name="L1-01-q2" value="B"><span class="letter">B.</span> <span>Each entry of <code>W @ x</code> is the dot product of one row of <code>W</code> with <code>x</code></span></label><label class="option"><input type="checkbox" name="L1-01-q2" value="C"><span class="letter">C.</span> <span><code>W @ x</code> has shape (64,)</span></label><label class="option"><input type="checkbox" name="L1-01-q2" value="D"><span class="letter">D.</span> <span><code>W @ x</code> is a valid product</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>A, B, D.</strong> The 64 columns of <code>W</code> match the 64 entries of <code>x</code>, so the product is valid and
+gives one number per row: 1,000 of them. C has the shapes backwards: the result has as many
+entries as <code>W</code> has rows.</p>
+</div></li><li class="question" data-kind="single" data-answer="B"><div class="q-text">You are ranking support articles against a short question. Long articles mention more words, so their vectors are longer. Which measure stops long articles from winning only because they're long?</div><fieldset><legend class="visually-hidden">Options for question 3</legend><label class="option"><input type="radio" name="L1-01-q3" value="A"><span class="letter">A.</span> <span>Dot product</span></label><label class="option"><input type="radio" name="L1-01-q3" value="B"><span class="letter">B.</span> <span>Cosine similarity</span></label><label class="option"><input type="radio" name="L1-01-q3" value="C"><span class="letter">C.</span> <span>Vector length</span></label></fieldset><div class="q-actions"><button type="button" class="btn check">Check answer</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p><strong>B.</strong> Cosine similarity divides out both lengths and compares direction only. The dot
+product (A) grows with length, which is the problem described. Length alone (C) ignores the
+question entirely.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text">Compute the cosine similarity of museum <code>[0, 4, 3]</code> and train <code>[0, 0, 5]</code>, showing each step.</div><label class="visually-hidden" for="L1-01-q4-text">Your answer</label><textarea id="L1-01-q4-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>Dot product: <span class="math inline">0 \times 0 + 4 \times 0 + 3 \times 5 = 15</span>. Lengths: <span class="math inline">\sqrt{0 + 16 + 9} = 5</span> and
+<span class="math inline">\sqrt{25} = 5</span>. Cosine: <span class="math inline">15 / (5 \times 5) = 0.6</span>. They share only the &quot;travel&quot; feature, so
+they're moderately similar, exactly as similar as ferry and train.</p>
+</div></li><li class="question" data-kind="open" data-answer=""><div class="q-text"><strong>Explain it to a colleague:</strong> your colleague asks, &quot;How can a list of numbers possibly capture what a word means?&quot; Answer in a few sentences, including one limit of the idea.</div><label class="visually-hidden" for="L1-01-q5-text">Your answer</label><textarea id="L1-01-q5-text" rows="3" placeholder="Write your answer first, then compare."></textarea><div class="q-actions"><button type="button" class="btn reveal">Show model answer</button></div><div class="self-mark" hidden><span>Did your answer cover the main points?</span><button type="button" class="btn small got-it">Got it</button><button type="button" class="btn small not-yet">Not yet</button></div><p class="feedback" aria-live="polite"></p><div class="explanation"><p>A model gives each word a vector and adjusts the numbers during training so that words used in
+similar contexts end up pointing in similar directions. This works because, as linguists
+observed in the 1950s, words that keep similar company tend to have similar meanings. The
+vector doesn't define the word; it places it relative to every other word, and similarity is
+measured by the angle between vectors. One limit: a single fixed vector per word can't tell
+apart different senses, like a river bank and a savings bank, and vectors also pick up biases
+from their training text.</p>
+</div></li></ol><p class="quiz-score" aria-live="polite"></p></div></section><section class="lesson-section" id="key-terms"><h2>Key terms</h2><ul>
+<li><a href="../glossary.html#cosine-similarity">Cosine similarity</a></li>
+<li><a href="../glossary.html#dimension">Dimension</a></li>
+<li><a href="../glossary.html#distributional-hypothesis">Distributional hypothesis</a></li>
+<li><a href="../glossary.html#dot-product">Dot product</a></li>
+<li><a href="../glossary.html#euclidean-distance">Euclidean distance</a></li>
+<li><a href="../glossary.html#matrix">Matrix</a></li>
+<li><a href="../glossary.html#matrixvector-product">Matrix–vector product</a></li>
+<li><a href="../glossary.html#norm">Norm</a></li>
+<li><a href="../glossary.html#shape">Shape</a></li>
+<li><a href="../glossary.html#transpose">Transpose</a></li>
+<li><a href="../glossary.html#unit-vector">Unit vector</a></li>
+<li><a href="../glossary.html#vector">Vector</a></li>
+</ul>
+</section><section class="lesson-section" id="further-reading"><h2>Further reading</h2><ul>
+<li>🟢 <strong>Essence of Linear Algebra</strong> — Grant Sanderson (3Blue1Brown, 2016). A short animated video
+series that builds geometric intuition for vectors, matrices and dot products.
+<a href="https://www.3blue1brown.com/topics/linear-algebra">https://www.3blue1brown.com/topics/linear-algebra</a></li>
+<li>🟡 <strong>Mathematics for Machine Learning</strong> — M. P. Deisenroth, A. A. Faisal and C. S. Ong (2020).
+Cambridge University Press. Chapters 2 and 3 cover linear algebra and geometry; the book is
+free online. <a href="https://mml-book.github.io/">https://mml-book.github.io/</a></li>
+<li>🟡 <strong>18.06 Linear Algebra</strong> — Gilbert Strang. MIT OpenCourseWare. Full lecture videos and notes
+from a classic course. <a href="https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/">https://ocw.mit.edu/courses/18-06-linear-algebra-spring-2010/</a></li>
+<li>🔴 <strong>Distributional Structure</strong> — Zellig S. Harris (1954). <em>Word</em>, 10(2–3), 146–162. A founding
+statement of the distributional hypothesis.</li>
+<li>🔴 <strong>Efficient Estimation of Word Representations in Vector Space</strong> — T. Mikolov, K. Chen,
+G. Corrado and J. Dean (2013). Learned word vectors and the vector-arithmetic analogies.
+<a href="https://arxiv.org/abs/1301.3781">https://arxiv.org/abs/1301.3781</a></li>
+</ul>
+</section><section class="lesson-section" id="next"><h2>Next</h2><ul>
+<li><strong>Next lesson:</strong> <a href="../lessons/L1-02.html">L1-02 Probability for Generative Models</a></li>
+<li><strong>Related:</strong> L1-07 uses matrix–vector products as neural network layers. L2-02 trains word
+vectors from text. L2-04 builds attention from scaled dot products. L3-06 and L3-07 use cosine
+similarity for semantic search.</li>
+</ul>
+</section>
+    <div class="complete-box">
+      <button type="button" class="btn primary mark-complete" data-lesson="L1-01">Mark lesson as complete</button>
+      <p class="complete-status" aria-live="polite"></p>
+    </div>
+    <nav class="pager" aria-label="Lesson navigation"><a class="pager-prev" href="L0-06.html" rel="prev"><small>Previous</small>L0-06 Your Toolkit: Running the Code Examples</a><a class="pager-next" href="L1-02.html" rel="next"><small>Next</small>L1-02 Probability for Generative Models</a></nav>
+  </article>
+</div>
+</main>
+<footer class="site-footer">
+  <p>Content <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE">CC BY 4.0</a> ·
+     Code <a href="https://github.com/rickyb30/genai-from-first-principles/blob/main/LICENSE-CODE">MIT</a> ·
+     <a href="https://github.com/rickyb30/genai-from-first-principles">Source on GitHub</a> ·
+     <a href="../about.html#privacy">No tracking: your progress stays in your browser</a></p>
+</footer>
+</body>
+</html>
