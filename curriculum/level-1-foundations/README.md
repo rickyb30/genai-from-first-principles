@@ -22,10 +22,10 @@ Each written lesson links to its page. Status is tracked in
 
 | ID | Lesson | Time | Status |
 |---|---|---|---|
-| L1-01 | [Vectors, Matrices and Similarity](01-vectors-matrices-similarity/README.md) | 45 min | reviewed |
-| L1-02 | [Probability for Generative Models](02-probability-for-generative-models/README.md) | 45 min | reviewed |
-| L1-03 | [Information Basics: Entropy, Cross-Entropy, Perplexity, KL](03-information-basics/README.md) | 40 min | reviewed |
-| L1-04 | [Derivatives, Gradients and the Chain Rule](04-derivatives-gradients-chain-rule/README.md) | 45 min | reviewed |
+| L1-01 | [Vectors, Matrices and Similarity](01-vectors-matrices-similarity/README.md) | 45 min | published |
+| L1-02 | [Probability for Generative Models](02-probability-for-generative-models/README.md) | 45 min | published |
+| L1-03 | [Information Basics: Entropy, Cross-Entropy, Perplexity, KL](03-information-basics/README.md) | 40 min | published |
+| L1-04 | [Derivatives, Gradients and the Chain Rule](04-derivatives-gradients-chain-rule/README.md) | 45 min | published |
 
 ### Module 1B · How machines learn
 

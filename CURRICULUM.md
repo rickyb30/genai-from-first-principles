@@ -21,14 +21,14 @@ writing status.
 | Level | Lessons | Planned | Drafted | Reviewed | Published |
 |---|---|---|---|---|---|
 | L0 Orientation | 6 | 0 | 0 | 0 | 6 |
-| L1 Foundations for Generative AI | 10 | 6 | 0 | 4 | 0 |
+| L1 Foundations for Generative AI | 10 | 6 | 0 | 0 | 4 |
 | L2 Deep Learning & Generative Models | 15 | 15 | 0 | 0 | 0 |
 | L3 Building with Language Models | 14 | 14 | 0 | 0 | 0 |
 | L4 Agentic Systems | 11 | 11 | 0 | 0 | 0 |
 | L5 Production AI Engineering | 11 | 11 | 0 | 0 | 0 |
 | L6 Safety, Security & Governance | 13 | 13 | 0 | 0 | 0 |
 | L7 Expert & Frontier Topics | 12 | 12 | 0 | 0 | 0 |
-| **Total** | **92** | **82** | **0** | **4** | **6** |
+| **Total** | **92** | **82** | **0** | **0** | **10** |
 
 ## Lessons
 
@@ -58,10 +58,10 @@ Folder: [curriculum/level-1-foundations/](curriculum/level-1-foundations/README.
 
 | ID | Title | Objective (you will be able to…) | Prereqs | Time | Status |
 |---|---|---|---|---|---|
-| L1-01 | Vectors, Matrices and Similarity | Compute dot products, cosine similarity and matrix–vector products in NumPy, and explain why "meaning as a vector" works | L0-06 | 45 min | reviewed |
-| L1-02 | Probability for Generative Models | Compute conditional probabilities, sample from a categorical distribution, and explain generation as repeated sampling | L0-06 | 45 min | reviewed |
-| L1-03 | Information Basics: Entropy, Cross-Entropy, Perplexity, KL | Compute these quantities for small distributions and explain why cross-entropy is the language-model loss | L1-02 | 40 min | reviewed |
-| L1-04 | Derivatives, Gradients and the Chain Rule | Compute gradients and apply the chain rule to a composed function | L1-01 | 45 min | reviewed |
+| L1-01 | Vectors, Matrices and Similarity | Compute dot products, cosine similarity and matrix–vector products in NumPy, and explain why "meaning as a vector" works | L0-06 | 45 min | published |
+| L1-02 | Probability for Generative Models | Compute conditional probabilities, sample from a categorical distribution, and explain generation as repeated sampling | L0-06 | 45 min | published |
+| L1-03 | Information Basics: Entropy, Cross-Entropy, Perplexity, KL | Compute these quantities for small distributions and explain why cross-entropy is the language-model loss | L1-02 | 40 min | published |
+| L1-04 | Derivatives, Gradients and the Chain Rule | Compute gradients and apply the chain rule to a composed function | L1-01 | 45 min | published |
 
 #### Module 1B · How machines learn
 
